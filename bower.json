@@ -1,0 +1,31 @@
+{
+  "name": "Reactive Programming",
+  "version": "0.0.1",
+  "homepage": "http://hermanbanken.nl",
+  "authors": [
+    "Herman Banken <hermanbanken@gmail.com>"
+  ],
+  "description": "Survery on Reactive Programming",
+  "main": "index.html",
+  "moduleType": [
+    "amd",
+    "es6",
+    "globals"
+  ],
+  "keywords": [
+    "reactive",
+    "rx"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4"
+  }
+}

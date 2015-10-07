@@ -394,6 +394,19 @@ sup {
     -webkit-print-color-adjust: exact;
 }
 
+.code {
+    font-family: Helvetica, arial, sans-serif;
+    font-size: 14px;
+    border-bottom: 1px solid #ccc;
+    margin: -6px -15px 5px;
+    padding: 10px 15px;
+    background-color: rgba(0,0,0,.2);
+}
+
+body pre[class*="language-"] {
+    padding: 6px 10px;
+}
+
 @media screen and (min-width: 914px) {
     body {
         width: 854px;

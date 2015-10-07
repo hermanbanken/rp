@@ -3,6 +3,10 @@
 <head>
   <title>Reactive Programming</title>
   <link rel="stylesheet" type="text/css" href="GitHub2.css">
+  <link rel="stylesheet" type="text/css" href="bower_components/prism/themes/prism.css">
+  <script src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="bower_components/rxjs/dist/rx.all.js"></script>
+  <script src="bower_components/prism/prism.js"></script>
 </head>
 
 <body>
@@ -20,9 +24,17 @@
 
 <h2>Intro</h2>
 
-<p>When writing an application your program is generally interacted with by humans or remote systems. For example your program could be notified of a button click:</p>
+<p>When writing an application your program is generally interacted with by humans or remote systems. For example your program could be notified of a form submit:</p>
 
-<blockquote><p>JS / Scala button click callback-style sample</p></blockquote>
+<div data-code="sample-1"></div>
+
+This is a simple example, but things get complicated easily. For example, when this form is a search form, with live updates, over AJAX.
+
+<div data-code="sample-2"></div>
+
+Of course we do not want to overload the server and do requests that are not necessary. We could debounce the keypresses. For example with a timeout.
+
+<div data-code="sample-3"></div>
 
 <p>Update &amp; check loop
 System controlled by environment
@@ -43,4 +55,6 @@ Callback hell</p>
 <p>Bonus goodies :)</p>
 
 <h2>Rx's Duality to Enumerable</h2>
+
+<script src="app.js"></script>
 </body></html>
