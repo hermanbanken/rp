@@ -1,31 +1,29 @@
 
 //// sample-1 ////
 
+function display (evt) {
+  var html = "Input was "+$("#input").val();
+  $("#output").html(html);
+}
+
 Rx.Observable.fromEvent($("#form"), 'submit')
-  .subscribe(function(){
-    var html = "Input was "+$("#input").val();
-    $("#output").html(html);
-  });
+  .subscribe(display);
 
 //////////////////
 
 //// sample-2 ////
 
-Rx.Observable.fromEvent($("#input"), 'keyup')
-  .flatMap(function(){
-    var data = { q: $("#input").val() };
-    return $.getJSON("search", data).promise();
-  }).subscribe(displayResults);
+function displayResults() { ... }
 
-//////////////////
-
-//// sample-3 ////
+function search(query){
+  return $.getJSON("search", { q: query }).promise();
+}
 
 Rx.Observable.fromEvent($("#input"), 'keyup')
-  .map(function(){ return $("#input").val() })
+  .pluck('target', 'value')
   .debounce(200)
-  .flatMap(function(query){
-    return $.getJSON("search", { q: query }).promise();
-  }).subscribe(displayResults);
+  .distinctUntilChanged()
+  .flatMapLatest(search)
+  .subscribe(displayResults);
 
 //////////////////

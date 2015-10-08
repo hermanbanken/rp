@@ -1,0 +1,45 @@
+
+.code {
+    font-family: Helvetica, arial, sans-serif;
+    font-size: 14px;
+    border-bottom: 1px solid #ccc;
+    /*margin: -6px -15px 5px;*/
+    /*padding: 10px 15px;*/
+    background-color: rgba(0,0,0,.2);
+}
+
+body pre[class*="language-"] {
+    padding: 6px 10px;
+}
+
+.hidden {
+  display: none;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex > * {
+  flex: 1;
+}
+
+pre {
+  padding: 0;
+}
+pre .code span, pre .flex code {
+  padding: 6px 10px;
+  border-left: 1px solid #ccc;
+}
+pre .code span { border-left-color: #ddd; }
+
+pre .code span:first-child, body pre > .flex > code:first-child {
+  border-left: none;
+}
+
+body pre > .flex > code {
+  padding: 6px 10px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  overflow: auto;
+}

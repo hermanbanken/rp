@@ -1,32 +1,35 @@
 
 //// sample-1 ////
 
-$("#form").on("submit", function (evt) {
+function display (evt) {
   var html = "Input was "+$("#input").val();
   $("#output").html(html);
-});
+}
+
+$("#form").on("submit", display);
 
 //////////////////
 
 //// sample-2 ////
 
-$("#input").on("keyup", function (evt){
-  var data = { q: $("#input").val() };
-  $.getJSON("search", data, function (r) {
-    displayResults(r);
-  });  
-});
+function displayResults() { ... }
 
-//////////////////
-
-//// sample-3 ////
-
-var timeout;
+var timeout, lastXhr, lastQuery;
 $("#input").on("keyup", function (evt) {
-  var data = { q: $("#input").val() };
+  var data = { 
+    q: $("#input").val() 
+  };
+  
+  if(data.q == lastQuery)
+    return;
+  lastQuery = data.q;
+
   timeout && clearTimeout(timeout);
   timeout = setTimeout(function () {
-    $.getJSON("search", data, displayResults);
+    lastXhr = $.getJSON("search", data, (r, xhr) => {
+      if (xhr == lastXhr)
+        displayResults(r);
+    });
   }, 200);
 });
 

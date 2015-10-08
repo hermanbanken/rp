@@ -3,10 +3,12 @@
 <head>
   <title>Reactive Programming</title>
   <link rel="stylesheet" type="text/css" href="GitHub2.css">
+  <link rel="stylesheet" type="text/css" href="app.css">
   <link rel="stylesheet" type="text/css" href="bower_components/prism/themes/prism.css">
   <script src="bower_components/jquery/dist/jquery.min.js"></script>
   <script src="bower_components/rxjs/dist/rx.all.js"></script>
   <script src="bower_components/prism/prism.js"></script>
+  <script src="lib.js"></script>
 </head>
 
 <body>
@@ -28,19 +30,39 @@
 
 <div data-code="sample-1"></div>
 
-This is a simple example, but things get complicated easily. For example, when this form is a search form, with live updates, over AJAX.
+This is a simple example, but things get complicated easily. 
+For example, when this form is a search form, with live updates, over AJAX.
+Of course we do not want to overload the server and do requests that are not necessary: we should debounce the keypresses. 
+For example with a timeout. 
+Furthermore we need to make sure that only the last search gets displayed, 
+and not have a search that got delayed overwrite a more recent one.
 
 <div data-code="sample-2"></div>
 
-Of course we do not want to overload the server and do requests that are not necessary. We could debounce the keypresses. For example with a timeout.
+A lot is happening in this sample, and you can see that the traditional style sample becomes cluttered already. 
+A lot of state is exposed, and almost nothing of the code is reusable. 
+In contrast to the Rx example which is really expressive, clean and reusable. 
+On the other hand in the Rx example we see some operators that might seem a little magical at first:
 
-<div data-code="sample-3"></div>
+<ul>
+  <li>
+    <a>pluck</a> extracts fields from objects. 
+    <code class="language-js">pluck('target', 'value')</code> simply means that
+    <code class="language-js">input['target']['value']</code> is extracted,
+  </li>
+  <li><a href="http://reactivex.io/documentation/operators/debounce.html">debounce</a> delays all subsequent actions, and ignores events that are followed with another event within that delay,</li>
+  <li><a href="http://reactivex.io/documentation/operators/distinct.html">distinctUntilChanged</a> only propagates events if the value changed,</li>
+  <li><a href="http://reactivex.io/documentation/operators/flatmap.html">flatMap</a> accepts a function which returns an Observable itself, so for each event a stream of events is created, and merged into a single stream as a result. 
+  The flatMapLatest function is a special kind of flatMap, which makes sure only the last input event generates output events, canceling previous event streams.</li>
+</ul>
 
 <p>Update &amp; check loop
 System controlled by environment
 Callback hell</p>
 
 <p>Dual of iterator</p>
+
+<h2>Push vs pull</h2>
 
 <h2>Code style: transparent/explicit</h2>
 

@@ -1,33 +1,65 @@
 'use strict';
 
+function CodeBox(root){
+  this.root = root;
+  
+  var pre = this.pre = $("<pre />").appendTo(root);
+  var title = $("<div>").addClass("code flex").appendTo(pre);
+  var codebox = $("<div>").addClass("flex").appendTo(pre);
+
+  var box = this;
+  var langs = Rx.Observable.create(observer => {
+    box.add = (code) => observer.onNext(code)
+  }).share();
+
+  langs
+    .scan((acc, code) => {
+      var $button = $("<span>").text(code[0].title);
+      var $block = box._block(code);
+
+      $button.on("click", () => 
+        $block.removeClass("hidden").siblings("code").addClass("hidden")
+      );
+
+      acc.titles.push($button);
+      acc.blocks.push($block);
+      return acc;
+    }, { titles: [], blocks: [] })
+    .subscribe(parts => {
+      parts.titles.forEach(t => t.detach());
+      title.append(parts.titles);
+      
+      parts.blocks.forEach(b => b.detach());
+      codebox.append(parts.blocks);
+
+      Prism.highlightAll();
+    });
+}
+
+CodeBox.prototype._block = function (code) {
+  var block = $("<code></code>")
+    .text(code[1])
+    .addClass("language-"+code[0].highlight);
+  return block;
+}
+
 var languages = [
-  ["Javascript", "js"   , "js"],
-  ["Elm"       , null   ,     ],
-  ["Meteor"    , null   ,     ],
-  ["RxJS"      , "rx.js", "js"],
+  new Language("Javascript", "js"   , "js"),
+  new Language("Elm"       , null   , "hs"),
+  new Language("Meteor"    , null   , "js"),
+  new Language("RxJS"      , "rx.js", "js")
 ];
 
 var snippet = /(.)\1{3} ([^\/\n]+) \1{4}((.*[.\n]*?)*?)\n *\1{8,}/gm
-
-RegExp.prototype.matchAll = function(input){
-  var m, ar = [];
-  while((m = this.exec(input)) != null)
-    ar.push(m);
-  return ar;
-}
-
-function id(a) { return a; }
-
-function prefix(pre) { return function(arg){ return [pre, arg] }; }
 
 var O = Rx.Observable;
 
 O.from(languages)
   .flatMap(function(lang){
-    if(!lang[1])
+    if(!lang.load())
       return O.never();
     var p = $.ajax({
-      url: 'samples.'+lang[1],
+      url: 'samples.'+lang.file,
       dataType: 'text',
     }).promise();
     return O.fromPromise(p)
@@ -39,33 +71,6 @@ O.from(languages)
     function (match) { return [match[0],match[1][3].trim()] }
   )
   .subscribe(function (group) {
-    var root = $("<pre />").appendTo($("[data-code="+group.key+"]"));
-    var title = $("<div />").addClass("code").appendTo(root);
-    
-    $("<span />")
-        .html("<u>Traditional style</u> | Rx | Elm | Meteor")
-        .appendTo(title);
-
-    group.subscribe(function(code){
-      $("<code></code>")
-        .appendTo(root)
-        .text(code[1])
-        .addClass("language-"+code[0][2]); 
-      Prism.highlightAll();
-    });
+    var box = new CodeBox($("[data-code="+group.key+"]"));
+    group.subscribe(box.add.bind(box));
   });
-
-  function CodeBox(root){
-    this.root = root;
-  }
-
-  
-
-  // .subscribe(function (group) {
-  //   $("[data-code="+group.key+"]").each(function(){
-  //     $(this).
-  //   });
-
-  //   // class="language-css"
-  //   group.subscribe(function (c) { console.log(group.key, c) });
-  // })
