@@ -8,6 +8,7 @@
   <script src="bower_components/jquery/dist/jquery.min.js"></script>
   <script src="bower_components/rxjs/dist/rx.all.js"></script>
   <script src="bower_components/prism/prism.js"></script>
+  <script src="bower_components/d3/d3.min.js"></script>
   <script src="lib.js"></script>
 </head>
 
@@ -24,9 +25,47 @@
 
 <p>After working with Reactive technologies for some time it becomes natural, but it can be a hard concept to grasp. In this blog I will try to get you up to speed on the general subject and explain the forms, so you can use it too.</p>
 
-<h2>Intro</h2>
+<h2>Events and Behaviours</h2>
 
-<p>When writing an application your program is generally interacted with by humans or remote systems. For example your program could be notified of a form submit:</p>
+<p>
+At the core of <a href="">classical functional reactive programming</a> are the concepts of Events and Behaviours.
+When writing a reactive application your program is generally interacted with by humans or remote systems. These interactions trigger events in the system, which allow the system to process new information, recompute or update the UI for example.
+Formally events represent a sequence of discrete events as a timestamped list of values:</p>
+
+<p><center>Events &alpha; = [(Time, &alpha;)]</center></p>
+
+<p>
+Behaviours are continuous and time-varying values. For example analog position, velocity or acceleration, the temperature, or time itself, are behaviours. They can be represented as a function from time to a value:
+</p>
+
+<p><center>Behaviour &alpha; = Time &#8594; &alpha;</center></p>
+
+<p>
+There exists an isomorphism between Events and Behaviours, as shown by 
+<a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.63.4658&amp;rep=rep1&amp;type=pdf">Hudak et al.</a>, 
+converting form discrete to continuous time:
+</p>
+
+<p><center>Event &alpha; &#8776; Behaviour ( Maybe &alpha; )</center></p>
+
+<p>
+When viewed from a more practical viewpoint the reverse also holds. 
+Continuous values, behaviours, when modeled in the computer are really discrete values or samples, so Behaviours are represented as very fast firing Events.
+There is an actual maximum frequency at which the data is needed:
+the input is received only at the sample speed of the sensors and 
+the system can only display the results to the screen at a maximum of the refresh rate of the monitor or a given output rate to other outputs.
+This even allows for optimization by not firing an event when the sampled value did not change.
+</p>
+
+<svg id="continuous-discrete" style="width:100%"></svg>
+
+<h2>Signal</h2>
+
+A core concept in Reactive Programming is an Event, the notion of some external interaction with the system
+
+
+
+For example your program could be notified of a form submit:</p>
 
 <div data-code="sample-1"></div>
 
@@ -79,4 +118,5 @@ Callback hell</p>
 <h2>Rx's Duality to Enumerable</h2>
 
 <script src="app.js"></script>
+<script src="continuous.discrete.js"></script>
 </body></html>
