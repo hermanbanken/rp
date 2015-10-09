@@ -54,10 +54,11 @@ Continuous values, behaviours, when modeled in the computer are really discrete 
 There is an actual maximum frequency at which the data is needed:
 the input is received only at the sample speed of the sensors and 
 the system can only display the results to the screen at a maximum of the refresh rate of the monitor or a given output rate to other outputs.
-This even allows for optimization by not firing an event when the sampled value did not change.
+This even allows for some optimization: by not firing an event when the sampled value did not change, we can prevent unnecessary recomputations.
 </p>
 
 <svg id="continuous-discrete" style="width:100%"></svg>
+<svg id="discrete-optimize" style="width:100%"></svg>
 
 <h2>Signal</h2>
 
@@ -119,4 +120,5 @@ Callback hell</p>
 
 <script src="app.js"></script>
 <script src="continuous.discrete.js"></script>
+<script src="discrete.optimize.js"></script>
 </body></html>

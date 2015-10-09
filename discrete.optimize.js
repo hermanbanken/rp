@@ -1,7 +1,7 @@
 (function(){
 
 var svg, path, xas, yas, ytext, xtext;
-function continuousDiscrete(selector) {
+function discreteOptimize(selector) {
   var margin = {top: 10, right: 20, bottom: 40, left: 35},
     width = $(selector).parent().width() - margin.left - margin.right,
     height = 200 - margin.top - margin.bottom;
@@ -63,38 +63,59 @@ function continuousDiscrete(selector) {
   var cs = svg
     .selectAll('circle')
     .data(sinusdata)
-  cs.enter().append("circle")
-  cs.exit().remove()
+  cs.enter()
+    .append("circle")
   cs.attr("cx", function(d){ return x(d.x) })
     .attr("cy", function(d){ return y(d.y) })
     .attr("r", 3)
-    .style("stroke", "red")
-    .style("fill", "transparent")
+    .style("stroke", function(d){
+      return d.dy == 0 ? "green" : "red"
+    })
+    .style("fill", function(d){
+      return d.dy == 0 ? "transparent" : "red"
+    })
+  cs.exit().remove();
 
   var ls = svg.selectAll("line.linedown")
     .data(sinusdata)
-  ls.enter().append("line")
+  ls.enter()
+    .append("line")
     .attr("class", "linedown")
-  ls.exit().remove()
+  ls.exit().remove();
   ls.attr("x1", function(d){ return x(d.x) })
     .attr("y1", function(d){ return y(d.y) })
     .attr("x2", function(d){ return x(d.x) })
-    .attr("y2", function(d){ return y(0/*-Math.PI*.5*/) })
-    .style("stroke", "red")
-    .style("fill", "transparent")
-    
+    .attr("y2", function(d){ return y(0) })
+    .style("stroke", function(d){
+      return d.dy == 0 ? "transparent" : "red"
+    })
+
+  function point(i, points){
+    if(i/points*2*Math.PI < Math.PI / 2)
+      return -1;
+    else if(i/points*2*Math.PI > Math.PI * 1.5)
+      return 1;
+    else
+      return -Math.sin(i/points*2*Math.PI);    
+  }
+
   function sinusdata(){
     var points = width / 10;
     var sin = [];
     for (var i = 0; i < points; i++) {
-      sin.push({x: i / points, y: Math.sin(i/points*3*Math.PI)});
+      var y = point(i, points);
+      sin.push({
+        x: i / points,
+        y: y,
+        dy: point(i - 1, points) - y
+      });
     }
     return sin
   }
 }
 
 $(window)
-  .on("resize", continuousDiscrete.bind(window, "#continuous-discrete"))
+  .on("resize", discreteOptimize.bind(window, "#discrete-optimize"))
   .trigger("resize");
 
 })();
