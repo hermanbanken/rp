@@ -54,19 +54,30 @@ Continuous values, behaviours, when modeled in the computer are really discrete 
 There is an actual maximum frequency at which the data is needed:
 the input is received only at the sample speed of the sensors and 
 the system can only display the results to the screen at a maximum of the refresh rate of the monitor or a given output rate to other outputs.
-This even allows for some optimization: by not firing an event when the sampled value did not change, we can prevent unnecessary recomputations.
 </p>
 
 <svg id="continuous-discrete" style="width:100%"></svg>
+
+<p>
+This even allows for some optimization: by not firing an event when the sampled value did not change, we can prevent unnecessary recomputations.
+</p>
+
 <svg id="discrete-optimize" style="width:100%"></svg>
 
 <h2>Signal</h2>
+Generalising these events and behaviours we can represent them in a common data type, a <em>signal</em>.
 
-A core concept in Reactive Programming is an Event, the notion of some external interaction with the system
+<p><center>Signal &alpha; = Time &#8594; &alpha;</center></p>
 
+Using these signals we can create new signals. Utilizing a very expressive language we can write these composed signals very neatly:
 
+<div data-code="signal-compose"></div>
 
-For example your program could be notified of a form submit:</p>
+<h2>Example</h2>
+
+<p>
+In Reactive Programming there is external interaction with the system. For example your program could be notified of a form submit:
+</p>
 
 <div data-code="sample-1"></div>
 
@@ -96,9 +107,11 @@ On the other hand in the Rx example we see some operators that might seem a litt
   The flatMapLatest function is a special kind of flatMap, which makes sure only the last input event generates output events, canceling previous event streams.</li>
 </ul>
 
-<p>Update &amp; check loop
-System controlled by environment
-Callback hell</p>
+<p>
+Update &amp; check loop<br/>
+System controlled by environment<br/>
+Callback hell
+ </p>
 
 <p>Dual of iterator</p>
 

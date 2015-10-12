@@ -46,8 +46,9 @@ CodeBox.prototype._block = function (code) {
 var languages = [
   new Language("Javascript", "js"   , "js"),
   new Language("Elm"       , null   , "hs"),
-  new Language("Meteor"    , null   , "js"),
-  new Language("RxJS"      , "rx.js", "js")
+  new Language("Meteor"    , "meteor.js", "js"),
+  new Language("RxJS"      , "rx.js", "js"),
+  new Language("Scala.React", "scala", "scala"),
 ];
 
 var snippet = /(.)\1{3} ([^\/\n]+) \1{4}((.*[.\n]*?)*?)\n *\1{8,}/gm
