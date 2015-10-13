@@ -23,7 +23,16 @@
 
 <p>The term "reactive" seems hotter than ever, and curiously people still think that it is something new. In 2015 Andre Staltz wrote "[..] this new thing called Reactive Programming" and he is not the only one: it is new to more and more people. But Reactive Programming (RP) exists in many different shapes, and it is important to know the differences.</p>
 
-<p>After working with Reactive technologies for some time it becomes natural, but it can be a hard concept to grasp. In this blog I will try to get you up to speed on the general subject and explain the forms, so you can use it too.</p>
+<p>After working with Reactive technologies for some time it becomes natural, but it can be a hard concept to grasp. In this blog I will try to get you up to speed on the general subject and explain the different types of languages and frameworks, so you can use it too.</p>
+
+<p>The following frameworks will be used in samples, and some of their strengths and peculiarities are discussed, in order of character count:</p>
+<ul>
+  <li><a href="">Elm</a></li>
+  <li><a href="https://meteor.com">Meteor</a></li>
+  <li><a href="https://github.com/ingoem/scala-react">Scala.React</a></li>
+  <li><a href="http://www.reactive-streams.org/">Reactive Streams</a></li>
+  <li><a href="http://reactivex.io/">Reactive Extensions</a></li>
+</ul>
 
 <h2>Events and Behaviours</h2>
 
@@ -69,18 +78,46 @@ Generalising these events and behaviours we can represent them in a common data 
 
 <p><center>Signal &alpha; = Time &#8594; &alpha;</center></p>
 
-Such a signal represents a value at each particular time. Using these signals we can thus create new signals. Utilizing a very expressive language we can write these composed signals very neatly:
+<p>
+Such a signal represents a value at each particular time. 
+To be useful, signals can be transformed, and combined, 
+into new signals.
+</p>
+
+<h3>Transparent combinators</h3>
+<p>
+It depends on the language or framework what operations are
+allowed and how to use them. Utilizing a very expressive
+language we can write these transformed or composed signals 
+very neatly.
+In the example below the temperature can be a sensor or 
+a remote (streaming) API. This input produces new values, 
+which get then instantly converted to another unit-system 
+and displayed.
+</p>
 
 <div data-code="signal-compose"></div>
 
-In this example the temperature can be a sensor or a remote (streaming) API for example. This input produces new values, which get then instantly displayed and converted to another unit-system.
+<p>
+Both these examples are written using a very expressive framework. Meteor and Scala.React both track dependencies: when the function <code>tempC</code> is executed the depencency on <code>Temperature</code> is registered. The framework now knows that if <code>Temperature</code> changes the <code>tempC</code> function should be re-evaluated too, and consequetively the UI should be updated as well.
+</p>
 
-Both these examples are written using a very expressive framework, Meteor (in JavaScript) and Scala.React both track dependencies: when the function <code>tempC</code> is executed the depencency on <code>Temperature</code> is registered. The framework now knows that if <code>Temperature</code> changes the <code>tempC</code> function should be re-evaluated too, and consequetively the UI should be updated as well.
+<p>
+In the Meteor sample Tracker.autorun is used, <a href="#meteor-tracker">discussed below</a>. In the Scala.React sample the Signal function is applied a block function, represented by the curly braces, which is executed in a similar fashion as Meteor's Tracker.autorun.
+</p>
 
-In the Meteor sample Deps.autorun is used, which is discussed [here]. In the Scala.React sample the Signal function is applied a block function, represented by the curly braces, which is executed in a similar fashion as Meteor's Deps.autorun. Scala.React is detailed upon [here]. 
+<h3>Explicit combinators</h3>
 
-<h2>Example</h2>
+<p>
+Less transparent - but more powerful - frameworks like Reactive Extensions and Elm define special operators for combining multiple signals or "folding over the past".
+Combining 
+</p>
 
+lift, lift2, lift3, ... <br>
+foldp
+
+
+<h2>Reactive Extensions example</h2>
 <p>
 In Reactive Programming there is external interaction with the system. For example your program could be notified of a form submit:
 </p>
@@ -137,19 +174,22 @@ Callback hell
 
 <h2>Rx's Duality to Enumerable</h2>
 
-<h2>Meteor's <code>Deps.autorun</code></h2>
+<h2 id="meteor-tracker">Meteor's <code>Tracker.autorun</code></h2>
 <p>
-In earlier Meteor samples we consumed a reactive value, transformed it and displayed it. This example shows how to create a reactive value in Meteor, using the <code>Deps</code> package. Deps is a dependency tracker, building a graph of dependencies between reactive values. If a change is triggered at a node in the graph 
+In earlier Meteor samples we consumed a reactive value, transformed it and displayed it. This example shows how to create such a reactive value in Meteor, using the <code>Tracker</code> package. Tracker is a dependency tracker, building a graph of dependencies between reactive values. If a change is triggered at a node in the graph 
 all downstream nodes are tested and updated, triggering further updates if their values change too.
 </p>
 
 <p>
-Creating a new dependency in Meteor is simple: first  create a <code class="language-js">new Deps.Dependency</code>. Then create a function you want to be re-evaluated when the reactive values change: wrap it in <code>Deps.autorun</code>. The Deps.Dependency object reports calls to it's <code>depend</code> and <code>changed</code> functions to the framework. When a function wrapped in <code>autorun</code> hits a <code>depend</code>-call during execution, a dependency is tracked between the wrapped function and the Dependency-object. Any calls to the <code>changed</code> function later on trigger a re-evaluation.</p>
+Creating a new dependency in Meteor is simple: first  create a <code class="language-js">new Tracker.Dependency</code>. Then create a function you want to be re-evaluated when the reactive values change: wrap it in <code>Tracker.autorun</code>. The Tracker.Dependency object reports calls to it's <code>depend</code> and <code>changed</code> functions to the framework. When a function wrapped in <code>autorun</code> hits a <code>depend</code>-call during execution, a dependency is tracked between the wrapped function and the Dependency-object. Any calls to the <code>changed</code> function later on trigger a re-evaluation.
+</p>
+
+<p>A good pattern is to have a getter, that calls <code>depend()</code> and a setter, that calls <code>changed()</code>, encapsulating the variable that is mutable. This way it is clear how the variable can be changed, and when a re-evaluation is triggered.</p>
 
 <p>What's better to explain this than code:</p>
 <div data-code="deps"></div>
 
-A nice thing about Deps is that intermediary code does not need to be aware of the reactive code. If the producer (time, database, interactions, etc.) and the consumer (template language like Blaze) handle the Deps-code all transformations in between need not be aware of any reactivity. You can write your code just if it were executed once, but get auto-updating for free.
+A nice thing about Tracker is that intermediary code does not need to be aware of the reactive code. If the provider (time, database, interactions, etc.) and the consumer (template language like Blaze) handle the Tracker-code all transformations in between need not be aware of any reactivity. You can write your code just if it were executed once, but get auto-updating for free.
 
 <script src="app.js"></script>
 <script src="continuous.discrete.js"></script>

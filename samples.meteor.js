@@ -1,11 +1,13 @@
 //// signal-compose ////
 
-Template.HUD.tempF = Temperature;
-Template.HUD.tempC = () => Temperature() * 1.8 + 32;
+Template.HUD.tempC = Temperature;
+Template.HUD.tempF = () => Temperature() * 1.8 + 32;
+Template.HUD.diff = () => Template.HUD.tempC() - Template.HUD.tempF();
 
 <template name="HUD">
   <div>Celcius: {{tempC}}</div>
   <div>Fahrenheit: {{tempF}}</div>
+  <div>Difference: {{diff}}</div>
 </template>
 
 ////////////////////////
@@ -13,7 +15,7 @@ Template.HUD.tempC = () => Temperature() * 1.8 + 32;
 //// deps ////
 
 var favoritePie = "apple";
-var favoritePieDep = new Deps.Dependency;
+var favoritePieDep = new Tracker.Dependency;
 
 var getFavoritePie = function () {
   favoritePieDep.depend();
@@ -28,7 +30,7 @@ var setFavoritePie = function (newValue) {
 getFavoritePie();
 // "apple"
 
-var handle = Deps.autorun(function () {
+var handle = Tracker.autorun(function () {
   console.log("Your favorite Pie is " + getFavoritePie());
 });
 // "Your favorite Pie is apple"
