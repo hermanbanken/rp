@@ -69,9 +69,15 @@ Generalising these events and behaviours we can represent them in a common data 
 
 <p><center>Signal &alpha; = Time &#8594; &alpha;</center></p>
 
-Using these signals we can create new signals. Utilizing a very expressive language we can write these composed signals very neatly:
+Such a signal represents a value at each particular time. Using these signals we can thus create new signals. Utilizing a very expressive language we can write these composed signals very neatly:
 
 <div data-code="signal-compose"></div>
+
+In this example the temperature can be a sensor or a remote (streaming) API for example. This input produces new values, which get then instantly displayed and converted to another unit-system.
+
+Both these examples are written using a very expressive framework, Meteor (in JavaScript) and Scala.React both track dependencies: when the function <code>tempC</code> is executed the depencency on <code>Temperature</code> is registered. The framework now knows that if <code>Temperature</code> changes the <code>tempC</code> function should be re-evaluated too, and consequetively the UI should be updated as well.
+
+In the Meteor sample Deps.autorun is used, which is discussed [here]. In the Scala.React sample the Signal function is applied a block function, represented by the curly braces, which is executed in a similar fashion as Meteor's Deps.autorun. Scala.React is detailed upon [here]. 
 
 <h2>Example</h2>
 
@@ -130,6 +136,20 @@ Callback hell
 <p>Bonus goodies :)</p>
 
 <h2>Rx's Duality to Enumerable</h2>
+
+<h2>Meteor's <code>Deps.autorun</code></h2>
+<p>
+In earlier Meteor samples we consumed a reactive value, transformed it and displayed it. This example shows how to create a reactive value in Meteor, using the <code>Deps</code> package. Deps is a dependency tracker, building a graph of dependencies between reactive values. If a change is triggered at a node in the graph 
+all downstream nodes are tested and updated, triggering further updates if their values change too.
+</p>
+
+<p>
+Creating a new dependency in Meteor is simple: first  create a <code class="language-js">new Deps.Dependency</code>. Then create a function you want to be re-evaluated when the reactive values change: wrap it in <code>Deps.autorun</code>. The Deps.Dependency object reports calls to it's <code>depend</code> and <code>changed</code> functions to the framework. When a function wrapped in <code>autorun</code> hits a <code>depend</code>-call during execution, a dependency is tracked between the wrapped function and the Dependency-object. Any calls to the <code>changed</code> function later on trigger a re-evaluation.</p>
+
+<p>What's better to explain this than code:</p>
+<div data-code="deps"></div>
+
+A nice thing about Deps is that intermediary code does not need to be aware of the reactive code. If the producer (time, database, interactions, etc.) and the consumer (template language like Blaze) handle the Deps-code all transformations in between need not be aware of any reactivity. You can write your code just if it were executed once, but get auto-updating for free.
 
 <script src="app.js"></script>
 <script src="continuous.discrete.js"></script>
