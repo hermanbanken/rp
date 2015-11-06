@@ -1,5 +1,3 @@
-'use strict';
-
 function id(a) { return a; }
 
 function prefix(pre) { return function(arg){ return [pre, arg] }; }
@@ -20,3 +18,5 @@ function Language(title, file, highlight) {
 Language.prototype.load = function () { 
   return this.file && true;
 }
+
+export { Language, id, prefix };

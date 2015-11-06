@@ -1,3 +1,6 @@
+abbr {
+  border-bottom: 1px dashed black;
+}
 
 .code {
     font-family: Helvetica, arial, sans-serif;
