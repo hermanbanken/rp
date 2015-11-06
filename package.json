@@ -1,14 +1,23 @@
 {
   "name": "rp",
+  "description": "Reactive Programming",
   "version": "0.0.1",
+  "authors": ["Herman Banken"],
   "license": "MIT",
+  "main": "dist/rp",
+  "files": ["dist", "src"],
+  "repository": null,
   "devDependencies": {
-    "babel-loader": "^6.0.1",
-    "grunt": "^0.4.5",
-    "grunt-babel": "^5.0.0",
-    "grunt-contrib-clean": "^0.6.0",
-    "gulp": "^3.9.0",
-    "load-grunt-tasks": "^3.3.0",
-    "webpack": "^1.12.3"
+    "babelify": "~6.1.2",
+    "browserify": "^10.2.0",
+    "gulp": "gulpjs/gulp#4.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-typescript": "^2.9.2",
+    "gulp-uglify": "^1.2.0",
+    "merge2": "^0.3.5",
+    "typescript": "git://github.com/Microsoft/TypeScript#master",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
   }
 }
