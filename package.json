@@ -2,11 +2,21 @@
   "name": "rp",
   "description": "Reactive Programming",
   "version": "0.0.1",
-  "authors": ["Herman Banken"],
+  "authors": [
+    "Herman Banken"
+  ],
   "license": "MIT",
   "main": "dist/rp",
-  "files": ["dist", "src"],
-  "repository": null,
+  "files": [
+    "dist",
+    "src"
+  ],
+  "repository": {},
+  "dependencies": {
+    "d3": "*",
+    "jquery": "^2.1.4",
+    "rx": "^4.0.6"
+  },
   "devDependencies": {
     "babelify": "~6.1.2",
     "browserify": "^10.2.0",
@@ -16,7 +26,7 @@
     "gulp-typescript": "^2.9.2",
     "gulp-uglify": "^1.2.0",
     "merge2": "^0.3.5",
-    "typescript": "git://github.com/Microsoft/TypeScript#master",
+		"typescript": "^1.6.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   }

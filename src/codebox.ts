@@ -1,6 +1,9 @@
-import 'prism';
+import { Prism } from './prism';
+import * as Rx from 'rx';
+import * as jQuery from 'jquery';
 
-function CodeBox(root){
+declare var $: JQueryStatic;
+function CodeBox(root: JQuery){
   this.root = root;
   
   var pre = this.pre = $("<pre />").appendTo(root);
@@ -32,7 +35,7 @@ function CodeBox(root){
       parts.blocks.forEach(b => b.detach());
       codebox.append(parts.blocks);
 
-      Prism.highlightAll();
+      if(Prism) Prism.highlightAll();
     });
 }
 

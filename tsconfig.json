@@ -2,14 +2,14 @@
     "compilerOptions": {
         "target": "es6",
         "module": "commonjs",
+		    "moduleResolution": "node",
         "declaration": true,
-        "noImplicitAny": true,
-        "removeComments": true,
+				
+        "noImplicitAny": false,
+        
+				"removeComments": true,
         "sourceMap": true,
         "outDir": "dist"
     },
-    "filesGlob": [
-        "src/**/*.ts"
-    ],
     "exclude": []
 }

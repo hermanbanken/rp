@@ -95,6 +95,6 @@ function continuousDiscrete(selector) {
 
 $(window)
   .on("resize", continuousDiscrete.bind(window, "#continuous-discrete"))
-  .trigger("resize");
+  .on("load", () => $(window).trigger("resize"));
 
 })();

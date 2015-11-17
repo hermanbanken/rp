@@ -116,6 +116,6 @@ function discreteOptimize(selector) {
 
 $(window)
   .on("resize", discreteOptimize.bind(window, "#discrete-optimize"))
-  .trigger("resize");
+  .on("load", () => $(window).trigger("resize"));
 
 })();

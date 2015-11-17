@@ -1,22 +1,12 @@
-function id(a) { return a; }
+export function id<T>(a: T) { return a; }
+	
+export function prefix<T>(pre: T) { return function<M>(arg: M): [T,M] { return [pre, arg] }; }
+	
+export class Language {
+	constructor(public title: string, public file: string, public highlight: string) {
 
-function prefix(pre) { return function(arg){ return [pre, arg] }; }
-
-RegExp.prototype.matchAll = function(input){
-  var m, ar = [];
-  while((m = this.exec(input)) != null)
-    ar.push(m);
-  return ar;
+	}
+	load () {
+		return this.file && true;
+	}
 }
-
-function Language(title, file, highlight) {
-  this.title = title;
-  this.file = file;
-  this.highlight = highlight;
-}
-
-Language.prototype.load = function () { 
-  return this.file && true;
-}
-
-export { Language, id, prefix };

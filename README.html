@@ -14,7 +14,9 @@
   <link rel="stylesheet" type="text/css" href="GitHub2.css">
   <link rel="stylesheet" type="text/css" href="app.css">
   <link rel="stylesheet" type="text/css" href="bower_components/prism/themes/prism.css">
-  <script src="bower_components/requirejs/require.js"></script>
+  <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="bower_components/prism/prism.js"></script>
+  <script type="text/javascript" src="bower_components/d3/d3.min.js"></script>
   <script type="text/javascript" src="dist/rp.browser.js"></script>
 </head>
 
@@ -23,15 +25,33 @@
 <small>by Herman Banken</small>
 </h1>
 
-<p>"Reactive Programming is a new term", were the first words of a <a href="http://www.jstor.org/stable/1235239?seq=2#page_scan_tab_contents">paper from 1959</a>, in the Journal of Farm Economics. The author was speaking about a mathematical concept however. It had little to do with the definition "Reactive Programming" in the context of programming languages, first mentioned in 1989 by Berry:</p>
+<p>
+"Reactive Programming is a new term", were the first words of a 
+<a href="http://www.jstor.org/stable/1235239?seq=2#page_scan_tab_contents">paper from 1959</a>, 
+in the Journal of Farm Economics. The author was speaking about a mathematical concept however. 
+It had little to do with the definition "Reactive Programming" in the context of programming languages, 
+first mentioned in 1989 by Berry:
+</p>
 
-<blockquote><p>"Reactive programs continuously interact with their environment, at a speed determined by the environment instead of the program itself." - Gérard Berry, 1989</p></blockquote>
+<blockquote><p>
+	"Reactive programs continuously interact with their environment, 
+	at a speed determined by the environment instead of the program itself." - Gérard Berry, 1989
+</p></blockquote>
 
-<p>The term "reactive" seems hotter than ever, and curiously people still think that it is something new. In 2015 Andre Staltz wrote "[..] this new thing called Reactive Programming" and he is not the only one: it is new to more and more people. But Reactive Programming (RP) exists in many different shapes, and it is important to know the differences to get the right tool for the job.
-After working with Reactive technologies for some time it becomes natural, but it can be a hard concept to grasp at first.
-In this blog I will try to get you up to speed on the general subject and explain the different types of languages and frameworks, so you can use it too.</p>
+<p>
+The term "reactive" seems hotter than ever, and curiously people still think that it is something new. 
+In 2015 Andre Staltz wrote "[..] this new thing called Reactive Programming" and he is not the only one: 
+it is new to more and more people. But Reactive Programming (RP) exists in many different shapes, 
+and it is important to know the differences to get the right tool for the job.
+After working with Reactive technologies for some time it becomes natural, 
+but it can be a hard concept to grasp at first.
+In this blog I will try to get you up to speed on the general subject and explain the different types of 
+languages and frameworks, so you can use it too.</p>
 
-<p>The following frameworks will be used in samples, and some of their strengths and peculiarities are discussed, in order of character count:
+<p>
+	The following frameworks will be used in samples, 
+	and some of their strengths and peculiarities are discussed, 
+	in order of character count:
 <a href="">Elm</a>, 
 <a href="https://meteor.com">Meteor</a>, 
 <a href="https://github.com/ingoem/scala-react">Scala.React</a>, 
@@ -41,53 +61,95 @@ In this blog I will try to get you up to speed on the general subject and explai
 
 <h2>Reactive Programming</h2>
 <p>
-Shifting away from traditional batch based programs and towards interactive applications, possibly handling large amounts of live data, we as developers needed a new toolchain. Traditionally we would gather all data, put it into a computer and it would run over night, hopefully being done in the morning. Nowadays we get new data constantly and want it processed immediatly, updating the output instantly. We also make more interactive applications, handling more sorts of inputs. Next to just clicks, our phones now have sensors to register all kinds of inputs. The speed of interaction is now determined by the environment, as with reactive programs, in contrast to tranditional imperative programs.
+Shifting away from traditional batch based programs and towards interactive applications, 
+possibly handling large amounts of live data, we as developers needed a new toolchain. 
+Traditionally we would gather all data, put it into a computer and it would run over night, 
+hopefully being done in the morning.
+Nowadays we get new data constantly and want it processed immediatly, updating the output instantly. 
+We also make more interactive applications, handling more sorts of inputs. 
+Next to just clicks, our phones now have sensors to register all kinds of inputs. 
+The speed at which the program needs to work is determined by the environment, 
+as with <em>reactive</em> programs, in contrast to traditional <em>transformational</em> programs.
 </p>
 
 <p>
-Reactive Programming can help to write more comprehensible code because you can model the data-flow instead of passing the data around manually.
-What should be done
-Smart operators
+With reactive programming you can write more comprehensible code,
+because you can model the data-flow instead of passing the data around manually.
+You descibe 
+ what happens when new parts of data arrive,
+ define through which transformations the data should go, 
+ and which output gets generated in response to the input.
+At the basis of reactive programming lie abstractions and primitives that
+conceptualize these inputs and the operations you can perform.
 </p>
 
-Reactive Programming was first mentioned in research about Real-Time and Reactive Systems in the context of data-flow programming and the development of <a href="https://en.wikipedia.org/wiki/Esterel">Esterel</a>, by Gerard Berry and his team (see papers from <a href="https://hal.inria.fr/inria-00075494/document">1989</a> &amp; <a href="https://hal.inria.fr/inria-00075115/document">1991</a>).
+<h2>The beginning</h2>
+<p>
+Reactive Programming was first mentioned in research about Real-Time and Reactive Systems 
+in the context of data-flow programming and the development of <a href="https://en.wikipedia.org/wiki/Esterel">Esterel</a>, 
+by Gerard Berry and his team (see papers from <a href="https://hal.inria.fr/inria-00075494/document">1989</a> &amp; <a href="https://hal.inria.fr/inria-00075115/document">1991</a>).
+They noted that then existing General Purpose Languages (GPL's) alone were not suitable for those systems,
+and that development could benefit from better abstractions and primitives 
+available in Special Purpose Languages, like Esterel.
+He argues for synchronity as it allows focussing on the logic of reactions, 
+instead of dealing with the problems that arrise with asynchronity. 
+Synchronity makes deterministic and concurrent programs possible and causes performance to be predictable, 
+which is neccessary for real time systems.
+He concludes that GPL's and SPL's respective advantages are complementary 
+and can be combined in larger systems.
+</p>
 
-Research in reactive programming came forth from research in [real-time](https://hal.inria.fr/inria-00075115/document) data flow systems.
-
+<p>
+In 1997 Elliot and Hudak use a functional rather than imperative style for their Reactive Animation system 
+<a href="http://www.eecs.northwestern.edu/~robby/courses/395-495-2009-winter/fran.pdf">Fran</a>.
+Being the first FRP framework, Fran is often referred to as classic functional reactive programming (Classic FRP).
+It provided a basis for future research into (functional) reactive programming by creating the notion of
+events and behaviours.
+</p>
 
 <h2>Abstractions: Events and Behaviours</h2>
 
 <p>
-At the core of <a href="">classical functional reactive programming</a> are the concepts of <em>Events</em> and <em>Behaviours</em>.
-When writing a reactive application your program is generally interacted with by humans or remote systems. These interactions trigger events in the system, which allow the system to process new information, recompute or update the UI for example.
+At the core of Classic FRP  are the concepts of <em>Events</em> and <em>Behaviours</em>.
+When writing a reactive application your program is generally interacted with by humans or remote systems. 
+These interactions trigger events in the system, which allow the system to process new information, 
+recompute or update the UI for example.
 Formally events represent a sequence of discrete events as a timestamped list of values:</p>
 
 <p><center>Events &alpha; = [(Time, &alpha;)]</center></p>
 
 <p>
-Behaviours are continuous and time-varying values. For example analog position, velocity or acceleration, the temperature, or time itself, are behaviours. They can be represented as a function from time to a value:
+Behaviours are continuous and time-varying values. 
+For example analog position, velocity or acceleration, the temperature, or time itself, are behaviours. 
+They can be represented as a function from time to a value:
 </p>
 
 <p><center>Behaviour &alpha; = Time &#8594; &alpha;</center></p>
 
 <p>
 There exists an isomorphism between Events and Behaviours, as shown by 
-<a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.63.4658&amp;rep=rep1&amp;type=pdf">Hudak et al.</a>, 
-converting form discrete to continuous time:
+<a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.63.4658&amp;rep=rep1&amp;type=pdf" title="Real-Time FRP - Wan, Taha, Hudak">Hudak et al.</a>, 
+converting from discrete to continuous time:
 </p>
 
 <p><center>Event &alpha; &#8776; Behaviour ( Option &alpha; )</center></p>
 
-<p>Here <abbr title="here Option/Some/None, but actually called Maybe/Just/Nothing in the original paper">Option</abbr> is an abstract data type, being either Some &alpha; or None. This isomorphism simplifies the semantics: we can now represent both behaviours and events in a common data type, named a <em>Signal</em>:</p>
+<p>Here 
+	<abbr title="here Option/Some/None, but actually called Maybe/Just/Nothing in the original paper">Option</abbr> 
+	is an abstract data type, being either Some &alpha; or None. 
+	This isomorphism simplifies the semantics: 
+	we can now represent both behaviours and events in a common data type, named a <em>Signal</em>:</p>
 
 <p><center>Signal &alpha; = Time &#8594; &alpha;</center></p>
 
 <p>
 The isomorphism also holds in reverse, when viewed from a more practical viewpoint. 
-Continuous values, behaviours, when modeled in the computer are really discrete values or samples, so Behaviours are represented as very fast firing Events.
+Continuous values, behaviours, when modeled in the computer are really discrete values or samples, 
+so Behaviours are represented as very fast firing Events.
 There is an actual maximum frequency at which the data is needed: 
 first the input is received only at the sample speed of the sensors and 
-second the system can only display the results to the screen at a maximum of the refresh rate of the monitor or a given output rate to other outputs.
+second the system can only display the results to the screen 
+at a maximum of the refresh rate of the monitor or a given output rate to other outputs.
 </p>
 
 <svg id="continuous-discrete" style="width:100%"></svg>
@@ -100,17 +162,32 @@ This even allows for some optimization: by not firing an event when the sampled 
 
 <h3>Different names</h3>
 <p>
-The different frameworks have different names for these kind of abstractions, but the main idea is the same.</p>
+Every Reactive framework or language developed after Fran tends to ship with it's own terms for very comparable concepts.
+Of course the differences are what make the frameworks special or more useful to a specific case,
+but the idea of the underlying abstractions is the same.
+Classic FRP and it's direct derivatives have behaviours and events, 
+while most recent frameworks have only the concept of discrete events.
+</p>
 
 <table>
   <tr><th></th><th>Event</th><th>Behaviour</th></tr>
   <tr><td>Classic FRP</td><td>Event</td><td>Behaviour</td></tr>
-  <tr><td>Elm</td><td colspan="2">Signal</td></tr>
+  <tr><td>Elm</td><td>Signal</td><td></td></tr>
   <tr><td>Rx</td><td>Observable</td><td></td></tr>
-  <tr><td>Reactive Streams</td><td colspan="2">Signal</td></tr>
+  <tr><td>Reactive Streams</td><td>Signal</td><td></td></tr>
 </table>
 
+<h3>Semantics</h3>
+<p>
+The semantics of Events and Behaviours are well defined 
+in Elliots paper <a href="http://conal.net/papers/push-pull-frp/push-pull-frp.pdf">Push-Pull Functional Reactive Programming</a>.
+The original definitions and primitives are replaced by common classes and methods where possible, 
+giving the semantics of the Event and Behavior instances of Functor, Applicative Functor, Monoid and Monad, when they exist.   
+</p>
+<span class="todo">TODO: More here about Monad, AF instances, why useful. Maybe why Elm not AF, for safeness and more reasoning power?</span>
+
 <h2>Combinators</h2>
+
 <h3>Transparent combinators</h3>
 <p>
 It depends on the language or framework what operations are
@@ -140,8 +217,11 @@ Less transparent - but more powerful - frameworks like Reactive Extensions and E
 Combining 
 </p>
 
-lift, lift2, lift3, ... <br>
-foldp
+<span class="todo">
+	TODO: lift, lift2, lift3, ... <br>
+	foldp
+</span>
+
 
 
 <h2>Reactive Extensions example</h2>
@@ -177,7 +257,7 @@ On the other hand in the Rx example we see some operators that might seem a litt
   The flatMapLatest function is a special kind of flatMap, which makes sure only the last input event generates output events, canceling previous event streams.</li>
 </ul>
 
-<p>
+<p class="todo">
 Update &amp; check loop<br/>
 System controlled by environment<br/>
 Callback hell
@@ -239,26 +319,4 @@ Creating a new dependency in Meteor is simple: first  create a <code class="lang
 
 A nice thing about Tracker is that intermediary code does not need to be aware of the reactive code. If the provider (time, database, interactions, etc.) and the consumer (template language like Blaze) handle the Tracker-code all transformations in between need not be aware of any reactivity. You can write your code just if it were executed once, but get auto-updating for free.
 
-<script>
-requirejs.config({
-    baseUrl: 'dist',
-    paths: {
-        'jquery': '../bower_components/jquery/dist/jquery.min',
-        'd3': '../bower_components/d3/d3.min',
-        'prism': '../bower_components/prism/prism',
-        'rxjs': '../bower_components/rxjs/dist/rx.all.min'
-    }
-});
-require(['d3', 'jquery', 'app'], function(d3, $){
-  window.$ = $;
-  require(['continuous.discrete', 'discrete.optimize']);
-});
-/*
-  script src=bower_components/prism/prism.js
-  script src=bower_components/d3/d3.min.js 
-*/
-</script>
-<!-- <script src="app.js"></script> -->
-<script src="src/continuous.discrete.js"></script>
-<script src="src/discrete.optimize.js"></script>
 </body></html>

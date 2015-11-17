@@ -1,3 +1,16 @@
+.todo {
+	color: dodgerblue;
+	position: relative;
+}
+.todo:before {
+	content: "+";
+	font-size: 300%;
+	position: absolute;
+	left: -50px;
+	top: 0;
+	margin: -.6em 0;
+}
+
 abbr {
   border-bottom: 1px dashed black;
 }

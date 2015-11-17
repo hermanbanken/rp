@@ -13,7 +13,7 @@ var typescriptProject = typescript.createProject('tsconfig.json');
 
 gulp.task('typescript', () => {
   var result = gulp
-    .src(['src/**/*.ts'], {base: 'src'})
+    .src(['src/**/*.ts', 'typings/**/*.ts'], {base: 'src'})
     .pipe(sourcemaps.init())
     .pipe(typescript(typescriptProject))
 
@@ -26,7 +26,12 @@ gulp.task('typescript', () => {
 });
 
 gulp.task('browserify', () => {
-  return browserify('dist/rp.js', {standalone: 'RP', sourceType: 'module', debug: true})
+	var entries = [
+		'dist/rp.js', 
+		'src/continuous.discrete.js', 
+		'src/discrete.optimize.js'
+	];
+  return browserify({ entries, standalone: 'RP', sourceType: 'module', debug: true })
     .transform(babelify)
     .bundle()
     .pipe(source('rp.browser.js'))
@@ -46,6 +51,6 @@ gulp.task('d',       gulp.task('dist'));
 gulp.task('default', gulp.task('dist'));
 
 gulp.task('watch', function() {
-  gulp.watch('src/*.ts', gulp.task('dist'));
+  gulp.watch(['src/*.ts', 'src/*.js'], gulp.task('dist'));
 });
 gulp.task('w', gulp.series('watch'));
