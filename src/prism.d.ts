@@ -2,6 +2,4 @@ interface PrismStatic {
 	highlightAll();
 }
 
-declare var Prism: PrismStatic;
-
-export { Prism }
+export default PrismStatic;

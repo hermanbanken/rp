@@ -1,8 +1,9 @@
-import { Prism } from './prism';
 import * as Rx from 'rx';
 import * as jQuery from 'jquery';
+import PrismStatic from './prism';
 
 declare var $: JQueryStatic;
+var Prism: PrismStatic = window["Prism"];
 function CodeBox(root: JQuery){
   this.root = root;
   
@@ -36,6 +37,7 @@ function CodeBox(root: JQuery){
       codebox.append(parts.blocks);
 
       if(Prism) Prism.highlightAll();
+			else console.log("Prism not defined...", Prism, window["Prism"]);
     });
 }
 

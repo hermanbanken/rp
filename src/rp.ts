@@ -1,7 +1,7 @@
 import { id, prefix, Language } from './lib';
 import CodeBox from './codebox';
 import './regexp';
-import { Prism } from './prism';
+import PrismStatic from './prism';
 import * as Rx from 'rx';
 import * as jQuery from 'jquery';
 
@@ -39,6 +39,10 @@ var a = O.from(languages)
     var box = new CodeBox($("[data-code="+group.key+"]"));
     group.subscribe(box.add.bind(box));
   });
+	
+O.fromEvent(window, "load", () => document.body.innerText).subscribe(text => 
+	$("<div id='wc'></div>").appendTo($("body")).text(text.match(/\S+/g).length + " " + "words")
+);
 
 // O.timer(2000, 2000).map((_:any) => {
 //   var p = $.ajax({

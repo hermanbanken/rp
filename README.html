@@ -21,10 +21,12 @@
 </head>
 
 <body>
+<div class="main">
 <h1>Reactive Programming
 <small>by Herman Banken</small>
 </h1>
 
+<section>
 <p>
 "Reactive Programming is a new term", were the first words of a 
 <a href="http://www.jstor.org/stable/1235239?seq=2#page_scan_tab_contents">paper from 1959</a>, 
@@ -39,16 +41,127 @@ first mentioned in 1989 by Berry:
 </p></blockquote>
 
 <p>
-The term "reactive" seems hotter than ever, and curiously people still think that it is something new. 
-In 2015 Andre Staltz wrote "[..] this new thing called Reactive Programming" and he is not the only one: 
-it is new to more and more people. But Reactive Programming (RP) exists in many different shapes, 
-and it is important to know the differences to get the right tool for the job.
-After working with Reactive technologies for some time it becomes natural, 
-but it can be a hard concept to grasp at first.
-In this blog I will try to get you up to speed on the general subject and explain the different types of 
-languages and frameworks, so you can use it too.</p>
+The term "reactive" seems hotter than ever, and it still is something new, despite being decades old.
+In 2015 Andre Staltz 
+<a href="https://gist.github.com/staltz/868e7e9bc2a7b8c1f754">wrote</a> 
+"[..] this new thing called Reactive Programming" and he is not the only one: it is new to more and more people.
+There are multiple reasons for this.
+First, the original definition is quite broad, 
+there exist many ways interactive programs can operate at the speed of the environment.
+Secondly, we as computer scientists, developers, geeks tend to be very liberal with naming technology.
+Every new library must be reactive nowadays and many different reactive projects are shipped already.
+In this blog we try to create some order in the chaos, 
+explore different kinds of reactivity and explain what is Reactive Programming, so you can use reactive technologies too.
+</p>
+</section>
+
+<h2>Reactive</h2>
+<section>
+<p>
+It seems that everything needs to be reactive nowadays.
+Everyone thinks of it as something desirable.
+Even your favorite new library says it is reactive.
+But what is it?
+Looking at the current offering in reactive technology we can identify 4 different use cases of the term reactive.
+</p>
+
+<h3>1. Reactive, synonym for responsive</h3>
+<p>
+As part of the buzz, reactive is used as a synonym for responsive, 
+meaning the system - often a web application - responds instantly to user interaction.
+The definition of responsive is to <u>react</u> promptly, so there is some truth in this use case. 
+But reactive does not neccessarily requires promptness.
+Why do people not use responsive to describe this behaviour?
+The term responsive is being hijacked by <a href="http://abookapart.com/products/responsive-web-design">Responsive Web Design</a>,
+where layouts adapt to screen size.
+</p>
+<p>
+Furthermore, 
+tools to create such snappy user interfaces, like Meteor's latency compensation, 
+make UIs responsive by providing an instant intelligent prediction of deferred server computation.
+Because those frameworks (like Meteor) are often also reactive in the sense of the third definition,
+the confusion is increased.
+It would be more precise to use "responsive" to describe these UIs.
+</p>
+
+<h3>2. The Reactive Manifesto</h3>
+<p>
+The second use case is in an software architecture context.
+In an effort to standardize some patterns for cloud architectures the company Typesafe and others started the <a href="http://reactivemanifesto.org">Reactive Manifesto</a>.
+The manifesto identifies 4 aspects that presumably define a good reactive system:
+</p>
+<ol>
+	<li>Responsive: fast to respond</li>
+	<li>Resilient: transparently handling errors</li>
+	<li>Elastic: scalable</li>
+	<li>Message Driven: uses messages for communication, asynchronous</li>
+</ol>
+<p>
+The main goal of the manifesto seems to be creating some consensus and standardizing some terms among consultants and recruiters alike.
+For developers it mainly means to never block threads and to use asynchronity everywhere.
+Tied to this manifesto is the Reactive Streams initiative, discussed later in this blog.
+Reactive Streams is proposed to implement the Message Driven aspect and is a form of the fourth use case described here.
+</p>
 
 <p>
+Systems having above properties may or may not be reactive according to Berry's original definition however:
+they may still operate at their own pace, using cron jobs and message queue's to schedule their work.
+Although not mandatory, the manifesto does stimulate the use of real reactive technologies, 
+like the Reactive Streams proposal and message passing systems like Akka.
+</p>
+
+<h3>3. Reactive, data bindings</h3>
+<p>
+A third form of reactivity are automatic data bindings.
+Among non-technical users the most well known example of this are Excel Spreadsheets. 
+The idea is that one defines some value in terms of other values,
+and when the dependencies change, the dependent values are updated too.
+Many modern web frameworks and libraries provide this functionality, 
+in combination with some form of view rendering. For example:
+</p>
+<ul>
+	<li>AngularJS (2009)</li>
+	<li>Knockout (2010)</li>
+	<li>Meteor (2012)</li>
+	<li>React (2013)</li>
+	<li>Vue.js (2013)</li>
+</ul>
+<p>
+Note that all of the above are in JavaScript (or TypeScript) and this list is far from exhaustive. 
+Equally some frameworks like this exist for other platforms, like native mobile platforms.
+</p>
+
+<p>
+The JavaScript frameworks all allow bindings to be setup in the form of directives inside HTML markup and/or using
+manual wiring using imperative syntax. 
+The reason for this change is often user interaction, external input, like clicking a button or entering a form.
+When the model changes new HTML is generated and inserted.
+Some of the above support two-way bindings: 
+when special directives are in place not only will the view update when the model changes, 
+but the model will be automatically updated when the view changes too, by keystrokes in a form field for example.
+Writing these bindings allows developers to write layout code once and not be bothered with writing callbacks for the change of each individual value.
+</p>
+
+<p>
+One limitation of data binding libraries is that they only intent to represent a <em>current</em> value.
+They do not represent time, or allow to reason about previous values, without making you resort to side-effects.
+To overcome this limitation we need some stronger tools, like the next use case of the term reactive.
+</p>
+
+<h3>4. Reactive Programming, more complex data flows</h3>
+<p>
+One step ahead of data bindings is Reactive Programming.
+Besides reasoning over current values we can now model and reason about complete data flows.
+We can, without side-effects, count the occurences of an event, or aggregate them, for example.
+The rest of this article will be about Reactive Programming.
+</p>
+
+</section>
+
+<!--remove? 
+when using dedicated languages or libraries to wire environmental triggers to program code.-->
+
+<!--<p class="todo">
 	The following frameworks will be used in samples, 
 	and some of their strengths and peculiarities are discussed, 
 	in order of character count:
@@ -57,9 +170,10 @@ languages and frameworks, so you can use it too.</p>
 <a href="https://github.com/ingoem/scala-react">Scala.React</a>, 
 <a href="http://www.reactive-streams.org/">Reactive Streams</a> and 
 <a href="http://reactivex.io/">Reactive Extensions</a>.
-</p>
+</p>-->
 
 <h2>Reactive Programming</h2>
+<section>
 <p>
 Shifting away from traditional batch based programs and towards interactive applications, 
 possibly handling large amounts of live data, we as developers needed a new toolchain. 
@@ -80,14 +194,22 @@ You descibe
  define through which transformations the data should go, 
  and which output gets generated in response to the input.
 At the basis of reactive programming lie abstractions and primitives that
-conceptualize these inputs and the operations you can perform.
+conceptualize these inputs and the operations you can perform, 
+as discussed in the next sections.
 </p>
 
+</section>
+
 <h2>The beginning</h2>
+<section>
 <p>
+<span class="sidenotes">
+	<a class="sidenote" href="https://hal.inria.fr/inria-00075494/document">Real time programming [...], Berry, 1989</a><br>
+	<a class="sidenote" href="https://hal.inria.fr/inria-00075115/document">The Synchronous approach [...], Berry, 1991</a>
+</span>
 Reactive Programming was first mentioned in research about Real-Time and Reactive Systems 
 in the context of data-flow programming and the development of <a href="https://en.wikipedia.org/wiki/Esterel">Esterel</a>, 
-by Gerard Berry and his team (see papers from <a href="https://hal.inria.fr/inria-00075494/document">1989</a> &amp; <a href="https://hal.inria.fr/inria-00075115/document">1991</a>).
+by Gerard Berry and his team.
 They noted that then existing General Purpose Languages (GPL's) alone were not suitable for those systems,
 and that development could benefit from better abstractions and primitives 
 available in Special Purpose Languages, like Esterel.
@@ -99,16 +221,31 @@ He concludes that GPL's and SPL's respective advantages are complementary
 and can be combined in larger systems.
 </p>
 
+<div style="float:right; background: #eee; margin: 0 -5px; padding: 0 5px; -webkit-column-break-inside: avoid;">
+<span style='text-transform: uppercase;'>Javascript</span>
+Note that while synchronity seems old school, still one of the most used languages to date is mostly synchronous:
+Javascript is single-threaded and functions are <em>run to completion</em>, 
+so no program code can simultaneously modify shared variables or state.
+Javascript uses an event loop to support concurrency.
+Asynchronous operations can be run, but upon completion control is handed to the single event loop, 
+synchronizing code flow again.
+This way asynchronous operations can be run in the browser and on the operating system, 
+like fetching remote resources, writing files or parellism using Web Workers, 
+but preventing the many difficulties of normal paralellism.
+</div>
+
 <p>
-In 1997 Elliot and Hudak use a functional rather than imperative style for their Reactive Animation system 
-<a href="http://www.eecs.northwestern.edu/~robby/courses/395-495-2009-winter/fran.pdf">Fran</a>.
+In 1997 Elliot and Hudak use a functional rather than imperative style for their Reactive Animation system <a href="#fran">Fran</a>.
+<a id="fran" class="sidenote" href="http://www.eecs.northwestern.edu/~robby/courses/395-495-2009-winter/fran.pdf">Fran, Elliot, 1997</a>
 Being the first FRP framework, Fran is often referred to as classic functional reactive programming (Classic FRP).
 It provided a basis for future research into (functional) reactive programming by creating the notion of
 events and behaviours.
 </p>
 
-<h2>Abstractions: Events and Behaviours</h2>
+</section>
 
+<h2>Abstractions: Events and Behaviours</h2>
+<section>
 <p>
 At the core of Classic FRP  are the concepts of <em>Events</em> and <em>Behaviours</em>.
 When writing a reactive application your program is generally interacted with by humans or remote systems. 
@@ -127,26 +264,30 @@ They can be represented as a function from time to a value:
 <p><center>Behaviour &alpha; = Time &#8594; &alpha;</center></p>
 
 <p>
-There exists an isomorphism between Events and Behaviours, as shown by 
-<a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.63.4658&amp;rep=rep1&amp;type=pdf" title="Real-Time FRP - Wan, Taha, Hudak">Hudak et al.</a>, 
-converting from discrete to continuous time:
+There exists an isomorphism between Events and Behaviours, as shown by
+<a class="sidenote" id="wan" href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.63.4658&amp;rep=rep1&amp;type=pdf" title="Real-Time FRP - Wan, Taha, Hudak">Wan et al, 2001</a> 
+<a href="#wan" title="Real-Time FRP - Wan, Taha, Hudak">Wan et al.</a>, 
+converting from discrete to continuous time.
+At each point in time there is either some event or there is no event:
 </p>
 
 <p><center>Event &alpha; &#8776; Behaviour ( Option &alpha; )</center></p>
 
 <p>Here 
-	<abbr title="here Option/Some/None, but actually called Maybe/Just/Nothing in the original paper">Option</abbr> 
-	is an abstract data type, being either Some &alpha; or None. 
+	<abbr title="scalism, here Option/Some/None, but actually called Maybe/Just/Nothing in the original paper">Option</abbr> 
+	is an abstract data type, being either Some &alpha; or None.
 	This isomorphism simplifies the semantics: 
-	we can now represent both behaviours and events in a common data type, named a <em>Signal</em>:</p>
+	we can now represent both behaviours and events in a common data type. 
+	Wan et al. call this a <em>Signal</em>:
+</p>
 
 <p><center>Signal &alpha; = Time &#8594; &alpha;</center></p>
 
 <p>
-The isomorphism also holds in reverse, when viewed from a more practical viewpoint. 
+The isomorphism holds two ways, when viewed from a more practical viewpoint. 
 Continuous values, behaviours, when modeled in the computer are really discrete values or samples, 
 so Behaviours are represented as very fast firing Events.
-There is an actual maximum frequency at which the data is needed: 
+There is an actual maximum frequency at which the data is needed, for at least two reasons: 
 first the input is received only at the sample speed of the sensors and 
 second the system can only display the results to the screen 
 at a maximum of the refresh rate of the monitor or a given output rate to other outputs.
@@ -155,24 +296,40 @@ at a maximum of the refresh rate of the monitor or a given output rate to other 
 <svg id="continuous-discrete" style="width:100%"></svg>
 
 <p>
-This even allows for some optimization: by not firing an event when the sampled value did not change, we can prevent unnecessary recomputations.
+Depending on how the behaviour is used, 
+this even allows for some optimization:
+by not firing an event when the sampled value did not change, we can prevent unnecessary recomputations.
+When further computations count or average the values this can not be done of course, 
+so in most languages this is an explicit operation, often called <code>distinct</code>.
 </p>
 
 <svg id="discrete-optimize" style="width:100%"></svg>
 
+<p>
+	Some restrictions on this isomorphism have to be regarded however,
+	as one can express behaviours that are hard or impossible to convert to deterministic events.
+	Sometimes these difficulties are solved by increasing the sampling rate, like with integrals.
+	Languages like Fran allow for behaviours like <code>integrate</code> which apply mathematical integration to a function.
+  These behaviours can be approximated with sampling rates going to zero.
+	Examples of impossibly convertable behaviours are <code>sharp</code>, Zeno's paradox, and <code>unpredictable</code>.
+	These examples share the feature that frequency and sampling rate play an important role
+	which is hard to express semantically, 
+	and thus are described as non-terminating or erroring by Wan et al.
+</p>
+
 <h3>Different names</h3>
 <p>
-Every Reactive framework or language developed after Fran tends to ship with it's own terms for very comparable concepts.
-Of course the differences are what make the frameworks special or more useful to a specific case,
-but the idea of the underlying abstractions is the same.
-Classic FRP and it's direct derivatives have behaviours and events, 
-while most recent frameworks have only the concept of discrete events.
+The abstraction denoted by an Event is present in most reactive frameworks, 
+although named differently. The exact types do not necessarily behave the same,
+but they are used to construct data flows in approximately the same way.
+Behaviour are not usable without the push execution model, discussed later,
+therefore it's abstraction is only available in some frameworks.
 </p>
 
 <table>
   <tr><th></th><th>Event</th><th>Behaviour</th></tr>
   <tr><td>Classic FRP</td><td>Event</td><td>Behaviour</td></tr>
-  <tr><td>Elm</td><td>Signal</td><td></td></tr>
+  <tr><td>Elm</td><td colspan=2 style="text-align:center">Signal</td></tr>
   <tr><td>Rx</td><td>Observable</td><td></td></tr>
   <tr><td>Reactive Streams</td><td>Signal</td><td></td></tr>
 </table>
@@ -186,8 +343,10 @@ giving the semantics of the Event and Behavior instances of Functor, Applicative
 </p>
 <span class="todo">TODO: More here about Monad, AF instances, why useful. Maybe why Elm not AF, for safeness and more reasoning power?</span>
 
-<h2>Combinators</h2>
+</section>
 
+<h2>Combinators</h2>
+<section>
 <h3>Transparent combinators</h3>
 <p>
 It depends on the language or framework what operations are
@@ -221,7 +380,7 @@ Combining
 	TODO: lift, lift2, lift3, ... <br>
 	foldp
 </span>
-
+</section>
 
 
 <h2>Reactive Extensions example</h2>
@@ -265,7 +424,8 @@ Callback hell
 
 <p>Dual of iterator</p>
 
-<h2>Push vs pull, the evaluation model</h2>
+<h2>The evaluation model</h2>
+<section>
 <p>
 Each reactive programming language or framework has an <em>evaluation model</em>, responsible for propagating changes. This evaluation model of a reactive system is mostly hidden to the user, but it influences the performance and the capabilites that the system offers.
 Choosing the right language or framework thus requires at least some knowledge of the internal evaluation models. Generally two paradigms exist: <em>push</em> and <em>pull</em>. In this section we explains both their advantages and disadvantages, and use cases.  
@@ -273,9 +433,11 @@ Choosing the right language or framework thus requires at least some knowledge o
 <p>
 When propagating changes in a reactive system, either of the two parties can be in charge of initiating the propagation. Either the sources send (push) values to their dependants or the dependants request (pull) the values from their sources. Don't be confused: the data always originates at the source and flows to destination, but who is responsible is what changes.
 </p>
+<h3>Push</h3>
 <p>
 <em>Push</em> based reactive systems propagate changes to subscribers as soon as new data arrives. It is <em>data-driven</em>. To achieve this, such a system let subscibers register with the source or observable to receive updates first. The source then remembers who is subscribed. Later, when a source changes, it pushes an update to all dependants. There is nothing the dependant can do to stop this, except unregistering. This conforms to the original definition of Reactive Programming: the dependant operates at the speed of the environment providing new data. This ensures the fasted delivery possible: whenever new data is available it reaches the destination. A disadvantage is that the programmer needs to make sure that processing the change is fast, virtually instant. Luckily frameworks generally implement ways to deduplicate, buffer or drop superfluous changes. Push based systems work best when changes have a discrete character, for example clicks or tweets, and there is no sample rate that is seriously limiting the main effect. Push based it more suitable for updating a database or application UIs than for example the game loop of a 60fps 3d shooter game.
 </p>
+<h3>Pull</h3>
 <p>
 <em>Pull</em> based systems propagate changes whenever the subscriber requires new data. They are <em>demand-driven</em>. The first Functional Reactive Programming languages (<a href="http://conal.net/fran/">Fran</a>) were pull based. It matches well with the concept of a Behaviour, a continuous function: continuous functions need to be sampled to visualize them on a screen or write them to disk. When a new sample is started each value requests the values of it's upstream dependencies. This ensures no wastefull computations are done in-between samples, but also introduces a delay between changes and their effect: on average half the sample rate and in the worst case the full sample rate.
 </p>
@@ -287,6 +449,7 @@ It can be argued that pull based systems are not 'reactive' in the sense of the 
 <p>
 The evaluation model is really about which party triggers change to be propagated, but there is another distinction: how the change is propagated. In frameworks that utilise a subscriber pattern the change is pushed to the subscribers, providing them with a new value. This is in contrast to frameworks that operate on a dependency graph, which trigger recomputation of a part of this graph, by retrieving the input values and performing the computation, triggering changes further down the graph.
 </p>
+</section>
 
 <h2>Code style: transparent/explicit</h2>
 
@@ -319,4 +482,5 @@ Creating a new dependency in Meteor is simple: first  create a <code class="lang
 
 A nice thing about Tracker is that intermediary code does not need to be aware of the reactive code. If the provider (time, database, interactions, etc.) and the consumer (template language like Blaze) handle the Tracker-code all transformations in between need not be aware of any reactivity. You can write your code just if it were executed once, but get auto-updating for free.
 
+</div>
 </body></html>
