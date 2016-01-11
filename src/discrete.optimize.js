@@ -3,7 +3,7 @@
 var svg, path, xas, yas, ytext, xtext;
 function discreteOptimize(selector) {
   var margin = {top: 10, right: 20, bottom: 40, left: 35},
-    width = $(selector).parent().width() - margin.left - margin.right,
+    width = $(selector).parent().find("p").width()  - margin.left - margin.right,
     height = 200 - margin.top - margin.bottom;
 
   var parse = d3.time.format("%b %Y").parse;
