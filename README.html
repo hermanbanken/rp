@@ -317,49 +317,243 @@ so in most languages this is an explicit operation, often called <code>distinct<
 	and thus are described as non-terminating or erroring by Wan et al.
 </p>
 
-<h3>Different names</h3>
-<p>
-The abstraction denoted by an Event is present in most reactive frameworks, 
-although named differently. The exact types do not necessarily behave the same,
-but they are used to construct data flows in approximately the same way.
-Behaviour are not usable without the push execution model, discussed later,
-therefore it's abstraction is only available in some frameworks.
-</p>
-
-<table>
-  <tr><th></th><th>Event</th><th>Behaviour</th></tr>
-  <tr><td>Classic FRP</td><td>Event</td><td>Behaviour</td></tr>
-  <tr><td>Elm</td><td colspan=2 style="text-align:center">Signal</td></tr>
-  <tr><td>Rx</td><td>Observable</td><td></td></tr>
-  <tr><td>Reactive Streams</td><td>Signal</td><td></td></tr>
-</table>
-
 <h3>Semantics</h3>
 <p>
 The semantics of Events and Behaviours are well defined 
 in Elliots paper <a href="http://conal.net/papers/push-pull-frp/push-pull-frp.pdf">Push-Pull Functional Reactive Programming</a>.
-The original definitions and primitives are replaced by common classes and methods where possible, 
-giving the semantics of the Event and Behavior instances of Functor, Applicative Functor, Monoid and Monad, when they exist.   
+The original definitions and primitives are replaced by common Haskell classes and methods where possible, 
+giving the semantics of the Event and Behavior instances of Functor, Applicative Functor, Monoid and Monad, when they exist.
 </p>
-<span class="todo">TODO: More here about Monad, AF instances, why useful. Maybe why Elm not AF, for safeness and more reasoning power?</span>
 
+<p>
+For both Behaviour and Event the Functor instance is trivial: 
+a function is applied each value, leaving the time value intact.
+The Applicative Functor instances are less trivial. 
+For a function-valued and one or more argument-valued Behaviours the Applicative Functor &lt;*&gt-function samples functions and arguments at time t. 
+The resulting Behaviour consists of the application of those inputs.
+</p>
+
+<pre><code>instance Applicative Behaviour where
+  at (pure a)
+      = pure a
+      = const a
+  at (b<sub>f</sub> &lt;*&gt; b<sub>x</sub>)
+      = at b<sub>f</sub> &lt;*&gt; at b<sub>x</sub>
+      = λt ⟶ (b<sub>f</sub> `at` t) (b<sub>x</sub> `at` t)</code></pre>
+
+<p>
+For Event the Applicative Functor needs to handle two Event's which not neccesarily have equal (amount of) values of t.
+Therefore all possible pairs constructed from values of the two Event's, 
+yielding m + n different <em>time clusters</em> of values, 
+for we need to wait for both time values t<sub>1</sub> and t<sub>2</sub>, 
+effectively taking the maximum t.
+</p>
+
+<p>
+For Event's the Monoid and Monad instances are defined by Elliot. 
+The Monoid instance provides a never occuring event and merges multiple events, in a time-ordered fashion.
+The Monad instance is usefull when an Event generates Events, 
+for which Elliot uses an astroid collision tracking example,
+where each spawned astroid generates an Event of collisions.
+The instance takes care of flattening this event-valued event, 
+taking care that inner events cannot fire before they are created by the outer event. 
+</p>
+
+<h3>Different names</h3>
+<p>
+The abstraction denoted by an Event is present in most reactive languages, 
+although named differently. The exact types do not necessarily behave the same,
+but they are used to construct data flows in approximately the same way.
+Behaviour is not usable without the push execution model, discussed later,
+therefore it's abstraction is only available in some languages. 
+The table below shows how discrete and contineous reactive data types are called in those languages.
+</p>
+
+<table>
+  <caption>Naming in different RP languages</caption>
+	<tr><th></th><th>Discrete</th><th>Contineous</th></tr>
+  <tr><td>Classic FRP</td><td>Event</td><td>Behaviour</td></tr>
+  <tr><td>Elm</td><td>Signal</td><td></td></tr>
+  <tr><td>Rx</td><td>Observable</td><td></td></tr>
+  <tr><td>Reactive Streams</td><td>Publisher</td><td></td></tr>
+</table>
+
+<p>
+The feeling of the words Observable and Publisher is very different from Event or Signal.
+While Event or Signal feels very concrete, Observable is more abstract, it only denotes what you can do with it: 
+you can observe the data. It does not describe the kind of data source.
+Also the Publisher of Reactive Streams is different in that its datatype describes something that acts on itself, 
+while Event, Signal and Observable feel more passive.
+</p>
+<p>
+Observables and Publishers are a bit more expressive however, they can <em>complete</em> or <em>error</em>.
+This is something Elm and Classic FRP do not support.
+It is never known whether a next event may occur in these languages, 
+while Observables and Publishers will never produce new events after an error or completion.
+Furthermore, both will only start producing events when they are subscribed upon.
+This is an effect of the available language tools: 
+to dispose of resources Rx and Reactive Streams need to know when to start and end, 
+while Elm and Classic FRP are pure - have immutable and infinite events/signals - living in a Haskell-like world with lazyness. 
+</p>
+
+<span class="todo">TODO: Maybe why Elm AF, for safeness and more reasoning power?</span>
 </section>
 
-<h2>Combinators</h2>
-<section>
-<h3>Transparent combinators</h3>
+<h2>Usage</h2>
 <p>
+Could be that you came here only for this section, in that case, read on!
+This section explains how to use Reactive Programming in general and highlights important differences when necessary.
+The general usage consists of obtaining a reference to (future) events, 
+transforming and combining events, and then using the results, 
+interacting with the environment again, possibly with side-effects.
+</p>
+<p>
+We will look at three flavors, that you can use to create applications today.
+Classic FRP is left out, as it's implementation FRAN is deprecated, 
+and it and it's successor FieldTrip are merely for creating animations only.
+For Rx we will look at RxJS, for it is widely used, and we can then run demo's in-browser.
+Note also that Reactive Streams is a specification only, 
+which has several implementations, of which we choose Akka Streams as an example.
+</p>
+
+<table class="table center">
+	<caption>Life cycle</caption>
+	<tr><td colspan=3><div id="stage-1"></div></td></tr>
+	<tr>
+		<td style="width:33%">Obtain</td>
+		<td style="width:33%">Transform</td>
+		<td style="width:33%">Consume</td>
+	</tr>
+</table>
+
+<h3>Obtaining events</h3>
+<p>
+First we need to obtain or create a reference to the event we are interested in.
+Depending on the language or library we can obtain events in different ways. 
+Most languages provide ready-made events or handy helper methods.
+</p>
+
+<div class='row'>
+	<div class='col-md-4'>
+		<h3>Elm</h3>
+		<p>
+		In Elm the core library contains many essential Signal's. 
+		The 
+		<a href="http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Time">Time</a>, 
+		<a href="http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Window">Window</a>, 
+		<a href="http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Mouse">Mouse</a>, 
+		<a href="http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Keyboard">Keyboard</a> and 
+		<a href="http://package.elm-lang.org/packages/elm-lang/core/3.0.0/Touch">Touch</a>
+		libraries together provide most of the signals that are offered by the browser environment.
+		For example, if we want to obtain the mouse position we can use <code>Mouse.position</code> which is a <code>Signal (Int, Int)</code>.
+		</p>
+	</div>
+	<div class='col-md-4'>
+		<h3>RxJS</h3>
+		<p>
+		In RxJS a helper exists to create an Observable from traditional DOM events.
+		The following snipped demonstrates how to create an Observable of mouse clicks:
+		<pre><code>var obs = Rx.Observable
+  .fromEvent(button, 'click');</code></pre>
+		Many more helper methods exist on <a href="https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md">Rx.Observable</a> for creating Observables, 
+		amongst others:
+		<a href="https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/timer.md">timer</a> (fires every <em>x</em> millis),
+		<a href="https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/fromPromise.md">fromPromise</a> (for Promises/A+ bridging) and
+		<a href="https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/fromNodeCallback.md">fromNodeCallback</a> (NodeJS-style).
+		</p>
+	</div>
+	<div class='col-md-4'>
+		<h3>Akka Streams</h3>
+		<p>
+		The source of data with Akka Streams is unsuprisingly called <a href="http://doc.akka.io/api/akka-stream-and-http-experimental/2.0.1/#akka.stream.scaladsl.Source$">Source</a>.
+		Just like with Rx many helpers exist for converting from other inputs to Source: tick (fires every <em>x</em> millis), fromFuture, fromIterator, fromPublisher (to support Reactive Streams).
+		Lets show how to create a Source from a Future:
+<pre><code>// somehow obtain future
+val future: Future[Int] = ??? 
+Source.fromFuture(future)</code></pre>
+		</p>
+	</div>
+</div>
+
+<h3>Transforming events</h3>
+
+<p>
+Now that we have an event we can transform it, using available operators.
 It depends on the language or framework what operations are
 allowed and how to use them. Utilizing a very expressive
 language we can write these transformed or composed signals 
 very neatly.
 In the example below the temperature can be a sensor or 
 a remote (streaming) API. This input produces new values, 
-which get then instantly converted to another unit-system 
-and displayed.
+which get converted to another unit-system.
 </p>
 
+<p>
+All languages and frameworks borrowing from FRP, almost all have a way to convert a function
+that transform a single item into a function that transforms an event or signal to another.
+This operation is called <em>lifting</em> a function, moving it to the signal domain.
+For example, if we want to add up the two coordinates of the Mouse position we could use this lifting method 
+to transform the addition function (<code>+</code>) to work on an event of pairs of numbers.
+Depending on the kind of RP framework or language this method is often called either <code>lift</code> or <code>map</code>.
+</p>
+
+to work on a Signal of type <code>(Int, Int)</code>.
+
+
+<div class='row'>
+	<div class='col-md-4'>
+		<h3>Elm</h3>
+		<p>
+		Elm has a <code>map</code> operator since version <i>TODO</i>, 
+		which was called <code>lift</code> before that version:
+		</p>
+		
+		<pre><code>import Mouse
+import Signal exposing (map)
+
+add : (Int,Int) -> Int
+add = (\p -> fst p + snd p)
+added = map add Mouse.position</code></pre>
+	
+		<p>
+		This map takes a single function and a single signal, 
+		but map2, map3, etc. exist also to handle multiple signal arguments. 
+		These combine the different value configurations that exist over time using the provided function.
+		</p>
+		
+	</div>
+	<div class='col-md-4'>
+		<h3>RxJS</h3>
+		<pre><code>var obs = Rx.Observable
+  .fromEvent(window, 'mousemove').map(e => [e.clientX, e.clientY])
+	.map(e => e[0] + e[1]);</code></pre>
+	
+		<p>
+The Javascript implementation of Rx also has a <code>map</code> function. 
+This does not utilize a <code>lift</code> operator like RxJava does however, 
+but instead is a end-point function on its own.
+In RxJava many other operators are implemented in terms of lift. 
+Besides stimulating more code reuse it also has the advantage of triggering 
+Java to HotSpot the lift function and all related operators (allmost all of them). 			
+		</p>
+		
+	</div>
+	<div class='col-md-4'>
+		<h3>Akka Streams</h3>
+		<p>
+		The source of data with Akka Streams is unsuprisingly called <a href="http://doc.akka.io/api/akka-stream-and-http-experimental/2.0.1/#akka.stream.scaladsl.Source$">Source</a>.
+		Just like with Rx many helpers exist for converting from other inputs to Source: tick (fires every <em>x</em> millis), fromFuture, fromIterator, fromPublisher (to support Reactive Streams).
+		Lets show how to create a Source from a Future:
+<pre><code>// somehow obtain future
+val future: Future[Int] = ??? 
+Source.fromFuture(future)</code></pre>
+		</p>
+	</div>
+</div>
+
 <div data-code="signal-compose"></div>
+
+<section>
 
 <p>
 Both these examples are written using a very expressive framework. Meteor and Scala.React both track dependencies: when the function <code>tempC</code> is executed the depencency on <code>Temperature</code> is registered. The framework now knows that if <code>Temperature</code> changes the <code>tempC</code> function should be re-evaluated too, and consequetively the UI should be updated as well.

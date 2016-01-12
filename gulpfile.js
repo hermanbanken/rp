@@ -29,7 +29,9 @@ gulp.task('browserify', () => {
 	var entries = [
 		'dist/rp.js', 
 		'src/continuous.discrete.js', 
-		'src/discrete.optimize.js'
+		'src/discrete.optimize.js',
+		'src/ras.js',
+		'src/stage-1.js'
 	];
   return browserify({ entries, standalone: 'RP', sourceType: 'module', debug: true })
     .transform(babelify)

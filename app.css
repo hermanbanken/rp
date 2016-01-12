@@ -164,3 +164,42 @@ path.area {
   fill: none;
   stroke: #000;
 }
+
+.canvas {
+	position: relative;
+}
+
+.canvas .ball {
+	position: absolute;
+	width: 1em;
+	height: 1em;
+	transition: .5s linear background-color;
+}
+
+.table {
+	width: 100%;
+}
+
+.table.center td {
+	text-align: center;
+}
+
+.row {
+	overflow: hidden;
+}
+
+.row .col-md-3 {
+	width: 25%;
+	float: left;
+	box-sizing: border-box;
+	padding-right: 1em;
+}
+
+.row .col-md-4 {
+	width: 33%;
+	float: left;
+	box-sizing: border-box;
+	padding-right: 1em;
+}
+
+.row .col-md-3:last-child { padding-right: 0; }
