@@ -489,16 +489,13 @@ which get converted to another unit-system.
 </p>
 
 <p>
-All languages and frameworks borrowing from FRP, almost all have a way to convert a function
-that transform a single item into a function that transforms an event or signal to another.
+All languages and frameworks - borrowing from FRP - have a way to convert a function
+that transform a single item, into a function that transforms an event or signal to another.
 This operation is called <em>lifting</em> a function, moving it to the signal domain.
 For example, if we want to add up the two coordinates of the Mouse position we could use this lifting method 
 to transform the addition function (<code>+</code>) to work on an event of pairs of numbers.
 Depending on the kind of RP framework or language this method is often called either <code>lift</code> or <code>map</code>.
 </p>
-
-to work on a Signal of type <code>(Int, Int)</code>.
-
 
 <div class='row'>
 	<div class='col-md-4'>
@@ -525,7 +522,8 @@ added = map add Mouse.position</code></pre>
 	<div class='col-md-4'>
 		<h3>RxJS</h3>
 		<pre><code>var obs = Rx.Observable
-  .fromEvent(window, 'mousemove').map(e => [e.clientX, e.clientY])
+  .fromEvent(window, 'mousemove')
+	.map(e => [e.clientX, e.clientY])
 	.map(e => e[0] + e[1]);</code></pre>
 	
 		<p>
@@ -551,33 +549,74 @@ Source.fromFuture(future)</code></pre>
 	</div>
 </div>
 
-<div data-code="signal-compose"></div>
-
-<section>
-
+<h3>Consuming events</h3>
 <p>
-Both these examples are written using a very expressive framework. Meteor and Scala.React both track dependencies: when the function <code>tempC</code> is executed the depencency on <code>Temperature</code> is registered. The framework now knows that if <code>Temperature</code> changes the <code>tempC</code> function should be re-evaluated too, and consequetively the UI should be updated as well.
+After transforming events it is time to put them to good use.
+The values we are interested in are contained in events and 
+we can not just transform those to a list, as the events may not have occured yet.
+Thus in order to consume values we subscribe to the event,
+telling it what to do upon a new value.
 </p>
 
+<div class='row'>
+	<div class='col-md-4'>
+		<h3>Elm</h3>
+		<p>
+		Elm has a <code>map</code> operator since version <i>TODO</i>, 
+		which was called <code>lift</code> before that version:
+		</p>
+		
+		<pre><code>import Mouse
+import Signal exposing (map)
+
+add : (Int,Int) -> Int
+add = (\p -> fst p + snd p)
+added = map add Mouse.position</code></pre>
+	
+		<p>
+		This map takes a single function and a single signal, 
+		but map2, map3, etc. exist also to handle multiple signal arguments. 
+		These combine the different value configurations that exist over time using the provided function.
+		</p>
+		
+	</div>
+	<div class='col-md-4'>
+		<h3>RxJS</h3>
+		<pre><code>var obs = Rx.Observable
+  .fromEvent(window, 'mousemove')
+	.map(e => [e.clientX, e.clientY])
+	.map(e => e[0] + e[1]);</code></pre>
+	
+		<p>
+The Javascript implementation of Rx also has a <code>map</code> function. 
+This does not utilize a <code>lift</code> operator like RxJava does however, 
+but instead is a end-point function on its own.
+In RxJava many other operators are implemented in terms of lift. 
+Besides stimulating more code reuse it also has the advantage of triggering 
+Java to HotSpot the lift function and all related operators (allmost all of them). 			
+		</p>
+		
+	</div>
+	<div class='col-md-4'>
+		<h3>Akka Streams</h3>
+		<p>
+		The source of data with Akka Streams is unsuprisingly called <a href="http://doc.akka.io/api/akka-stream-and-http-experimental/2.0.1/#akka.stream.scaladsl.Source$">Source</a>.
+		Just like with Rx many helpers exist for converting from other inputs to Source: tick (fires every <em>x</em> millis), fromFuture, fromIterator, fromPublisher (to support Reactive Streams).
+		Lets show how to create a Source from a Future:
+<pre><code>// somehow obtain future
+val future: Future[Int] = ??? 
+Source.fromFuture(future)</code></pre>
+		</p>
+	</div>
+</div>
+
 <p>
-In the Meteor sample Tracker.autorun is used, <a href="#meteor-tracker">discussed below</a>. In the Scala.React sample the Signal function is applied a block function, represented by the curly braces, which is executed in a similar fashion as Meteor's Tracker.autorun.
+
 </p>
-
-<h3>Explicit combinators</h3>
-
-<p>
-Less transparent - but more powerful - frameworks like Reactive Extensions and Elm define special operators for combining multiple signals or "folding over the past".
-Combining 
-</p>
-
-<span class="todo">
-	TODO: lift, lift2, lift3, ... <br>
-	foldp
-</span>
-</section>
-
 
 <h2>Reactive Extensions example</h2>
+TODO: this section was originally written as introduction. It tries to materialize the problems with non-reactive coding. Maybe this section is now obsolete.
+
 <p>
 In Reactive Programming there is external interaction with the system. For example your program could be notified of a form submit:
 </p>
@@ -645,19 +684,103 @@ The evaluation model is really about which party triggers change to be propagate
 </p>
 </section>
 
-<h2>Code style: transparent/explicit</h2>
+<h2>Code style: implicit/explicit</h2>
+<p>
+Each reactive language has a degree of how explicit the programmer needs to be when constructing the data flow.
+Very explicit languages require the event transformations to be connected explicitly 
+and transformation happens through explicit use of a lift or map function.
+For implicit languages we can distinguish two kinds of data flow graph construction: 
+either the language defines operators that look like their imperative counterparts 
+but operate on events and uses implicit lifting to convert normal transformations,
+or the language infers dependencies by analysing value reads upon run time.
+The first method is often used by functional languages while the latter is often used by dynamic languages.
+</p>
 
-<h2>Pure? Functional?</h2>
+<p>
+An example of very implicit - even called <em>transparent</em> - reactivity is Meteor, 
+which tracks dependencies upon function execution, and simply reruns the function if any of the dependencies change. 
+The programmer does not need to concern himself with keeping output up to date and tracking dependencies, as Meteor does this implicitly.
+This results in the 'reactivity for free' property, which is arguably an advantage.
+Novice programmers can quickly write reactive programs, but the implicitness also feels a bit magical, when you don't understand the concept yet.
+More on this in the section about <a href="#meteor-tracker">Meteor's Tracker</a>.
+</p>
+
+<p>
+In contrast Rx is a very explicit. Every transformation requires a <code>map</code> and Observables are wired by hand.
+This code style often results in very long statements spread out over multiple lines containing lots of <em>reactive glue code</em>.
+This boilerplate code can look daunting to a novice programmer, 
+requiring new programmers to first understand the basics of reactive programming to be able to comprehent the approximate functionality of the code.
+On the other hand it offers much more control and less confusion can exists about whether a piece of code is reactive.
+</p>
+
+<h4>Implicit example</h4>
+<div data-code="signal-compose"></div>
+
+<section>
+
+<p>
+Both these examples are written using a very expressive and implicit-style framework. 
+Meteor and Scala.React both track dependencies: 
+when the function <code>tempC</code> is executed the depencency on <code>Temperature</code> is registered. 
+The framework now knows that if <code>Temperature</code> changes the <code>tempC</code> function should be re-evaluated too, 
+and consequetively the UI should be updated as well.
+</p>
+
+<p>
+In the Meteor sample Tracker.autorun is used, <a href="#meteor-tracker">discussed below</a>. 
+In the Scala.React sample the Signal function is applied a block function, 
+represented by the curly braces, which is executed in a similar fashion as Meteor's Tracker.autorun.
+</p>
+
+<h3>Explicit combinators</h3>
+
+<p>
+Less transparent - but more powerful - frameworks like Reactive Extensions and Elm define special operators for combining multiple signals or "folding over the past".
+</p>
+
+<span class="todo">
+	TODO: lift, lift2, lift3, ... <br>
+	foldp, limitation of Meteor due to implicitness, no past values
+</span>
+</section>
+
+<h2>Pure? Functional? Higher-order?</h2>
+TODO: backup these terms with some defitions
 
 <h2>Glitches</h2>
+<p>
+Some reactive languages advocate to be glitch free, which sounds good, but what does it mean?
+Glitches are described as a temporarily state that is incorrect and should not occur.
+A very simple and often used example is a triangle shape dependency graph.
+Node A is a reactive value and node B depends on it.
+Node C depends on both A and B and combines the resulting values somehow. 
+Now when node A changes both B and C must also be updated. Now a glitch occurs if the changes of A and B do not arrive at C at the exact same instant.
+Some languages have some sort of clock tick which allows the changes to be buffered until the next tick, and some do not.
+It is important to know whether the language you are using prevents glitches or not.
+Arguably glitches do not matter: nothing ever happens simultaneous in a single cpu core, 
+so even the intermediate state should be regarded as correct.
+When you do not expect these states however, nasty bugs could creep in.
+</p>
+
 
 <h2>Hot 'n Cold</h2>
+TODO: once and for all explain the difference
 
 <h1>Extra's</h1>
 
-<p>Bonus goodies :)</p>
+<p>Bonus goodies :) contributing back to the community:</p>
+<ul>
+<li>
+TODO:
+I want to implement a bridging library between Meteor and Rx. 
+Currently Rx is unusable with Meteor's server side fibers due to a missing bindToEnvironment.
+This is probably solvable by creating a Meteor scheduler.
+Furthermore bindings could be made to depend on Tracker dependables in a clean way and export Tracker dependencies from Rx data flows.
+</li>
+</ul>
 
 <h2>Rx's Duality to Enumerable</h2>
+TODO: discuss Meijers conference talk.
 
 <h2 id="meteor-tracker">Meteor's <code>Tracker.autorun</code></h2>
 <p>
