@@ -27,11 +27,11 @@ gulp.task('typescript', () => {
 
 gulp.task('browserify', () => {
 	var entries = [
-		'dist/rp.js', 
-		'src/continuous.discrete.js', 
+		'dist/rp.js',
+		'src/continuous.discrete.js',
 		'src/discrete.optimize.js',
 		'src/ras.js',
-		'src/stage-1.js'
+		'src/stage-1.js',
 	];
   return browserify({ entries, standalone: 'RP', sourceType: 'module', debug: true })
     .transform(babelify)
@@ -39,6 +39,19 @@ gulp.task('browserify', () => {
     .pipe(source('rp.browser.js'))
     .pipe(gulp.dest('dist'))
 });
+
+gulp.task('copy', () => {
+	return merge([
+		gulp.src([
+			'bower_components/jquery/dist/jquery.min.js', 
+			'bower_components/prism/prism.js', 
+			'bower_components/d3/d3.min.js',
+		])
+			.pipe(gulp.dest('dist/libs/')),
+		gulp.src(['bower_components/prism/themes/prism.css'])
+			.pipe(gulp.dest('dist/css/'))
+	]);
+})
 
 gulp.task('uglify', () => {
   return gulp
@@ -48,7 +61,7 @@ gulp.task('uglify', () => {
     .pipe(gulp.dest('dist'))
 });
 
-gulp.task('dist',    gulp.series('typescript', 'browserify', 'uglify'));
+gulp.task('dist',    gulp.series('copy', 'typescript', 'browserify', 'uglify'));
 gulp.task('d',       gulp.task('dist'));
 gulp.task('default', gulp.task('dist'));
 
