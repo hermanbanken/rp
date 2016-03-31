@@ -71,8 +71,8 @@ function tick() {
         dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
         normX = deltaX / dist,
         normY = deltaY / dist,
-        sourcePadding = d.left ? 17 : 12,
-        targetPadding = d.right ? 17 : 12,
+        sourcePadding = d.left ? 34 : 29,
+        targetPadding = d.right ? 34 : 29,
         sourceX = d.source.x + (sourcePadding * normX),
         sourceY = d.source.y + (sourcePadding * normY),
         targetX = d.target.x - (targetPadding * normX),
@@ -120,7 +120,7 @@ function restart() {
 
   g.append('svg:circle')
     .attr('class', 'node')
-    .attr('r', 12)
+    .attr('r', 30)
     .style('fill', function(d) { return  d3.rgb(colors(d.id)).brighter().toString(); })
     .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
     .classed('reflexive', function(d) { return d.reflexive; })
@@ -136,7 +136,7 @@ function restart() {
   // show node IDs
   g.append('svg:text')
       .attr('x', 0)
-      .attr('y', 4)
+      .attr('y', 10)
       .attr('class', 'id')
       .text(function(d) { return d.value; });
 
