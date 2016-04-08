@@ -1,0 +1,86 @@
+Hangout meeting 2016-04-02, Meijer & Banken
+
+## Agenda
+
+- hoe is het met u?
+- bij Facebook aan de slag?
+- are we good?
+- why my slack and going forward
+	- focus kwijt, door minder supervisie en persoonlijke omstandigheden
+	- weinig eenvoudig contact
+- current state
+	- op github.io, niet tevreden met toon en lijn
+	- mist intro
+    - mist code voorbeelden
+- nu bezig om structuur om te gooien in
+	- definities
+	- code voorbeelden
+	- lastiger: Elm, kunnen we om Appicative Functor eigenschap heenwerken? in praktijk handig?
+	- ideas for example implementations
+		- Meteor, reactive collecties naar de client brengen? : Qobservable
+	- Duality tussen Rx en Iterator
+
+- future meetings (same time? weekly)
+
+- afronden of voorzichtig beginnen aan afstuderen?
+- onderwerp: native debugger aan JVM hangen? lukt dat?
+	- gewoon beginnen met Proof of Concept?
+	- literatuur omtrent debugging is schaars/lastig/gerelateerd ouderwetse realtime systemen
+	- goede papers?
+	- waar is Georgi op uit gekomen?
+
+## Notes
+Verschillende aspecten
+- tijd belangrijk bij FRP
+- Rx collecties belangrijk
+- Elm statische dependencies
+- Reactive Streams backpressure
+- Spreadsheets & Meteor verliezen historie
+    - [paper Lars Willems historie in spreadsheets]()
+    - [paper ActiveSheets, link Streams to Excel](http://hirzels.com/martin/papers/ecoop14-activesheets.pdf)
+
+explicit/implicit?
+stijl anders, maar conceptueel het zelfde
+
+hot cold, mensen raken in de war
+- precies hetzelfde als iterators
+- meestal niet je eigen iterables
+- yield/return, doe je het wel
+
+Glitches, probleem = hele graph moeten hebben om te voorkomen
+eventual consistency is normaal in database wereld
+strong consistency - eventual
+
+Meteor, Angular, proberen databinding
+React, events niet first class, update state => rerender, niet benoemd
+
+Elm, buiten Elm om, output komt weer als input binnen
+
+https://blogs.janestreet.com/introducing-incremental/
+reactive met memoization
+
+## Cycle being Stream IO
+Cycle? Gebaseerd op ouderwetse Haskell Stream IO
+Toen overgestapt op Monadic IO
+=> Cycle veranderen naar Monadic IO
+ref, [Staltz: https://gitter.im/helsinki-frp/forall/archives/2015/07/24]
+
+refs:
+- [why Monadic instead of Stream IO in Haskell?](http://programmers.stackexchange.com/questions/149420/why-did-the-haskell-committee-choose-monads-to-represent-i-o) 
+- [how did Haskell look like with Stream IO?](http://stackoverflow.com/questions/17002119/haskell-pre-monadic-i-o)
+- [Staltz saying Cycle is indeed Stream IO and Monadic would be messy](https://gitter.im/helsinki-frp/forall/archives/2015/07/24)
+- [Doing Monads in Javascript](https://curiosity-driven.org/monads-in-javascript)
+- [History of Haskell](http://haskell.cs.yale.edu/wp-content/uploads/2011/02/history.pdf)
+- [ForkIO and green threads](http://blog.lahteenmaki.net/2013/01/haskell-and-non-blocking-asynchronous-io.html?showComment=1459804309320#c4513834952918578189)
+
+## sparren met Georgie
+Georgi bij Wallmart
+ - syncen via Skype met Georgi, kijken wat er nog te doen is
+
+Ideen:
+- JVM Debugging
+- cloud & rx voor LoRa, IoT
+- case study: scriptable debugging in project bij Q42/Johan
+- Meteor & Qobservables
+
+
