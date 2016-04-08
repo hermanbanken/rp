@@ -1,8 +1,8 @@
 'use strict';
 
 // set up SVG for D3
-var width  = 960,
-    height = 500,
+var width  = 500,
+    height = 300,
     colors = d3.scale.category10();
 
 var svg = d3.select('body')
@@ -150,10 +150,14 @@ function restart() {
 // app starts here
 restart();
 
-const numbers = Rx.Observable.interval(1000).map(i => i % 10);
-const alphabet = Rx.Observable.interval(250).map(i => (i % 26) + 97).map(v => (String.fromCharCode(v)));
-const combined = Rx.Observable.combineLatest(alphabet, numbers, (s, n) => s + n);
+var numbers = Rx.Observable.interval(1000).map(function (i) { return i % 10 });
+var alphabet = Rx.Observable.interval(500).map(function(i) { return (i % 26) + 97 }).map(function(v) { return (String.fromCharCode(v)) });
+var combined = Rx.Observable.combineLatest(alphabet, numbers, function(s, n) { return s + n });
 
-numbers.subscribe(s => nodes[0].value = s);
-alphabet.subscribe(s => nodes[1].value = s);
-combined.subscribe(s => (nodes[2].value = s, restart(), console.log(s)));
+numbers.subscribe (function(s) { nodes[0].value = s });
+alphabet.subscribe(function(s) { nodes[1].value = s });
+combined.subscribe(function(s) {
+  (nodes[2].value = s,
+  restart(),
+  console.log(s))
+});
