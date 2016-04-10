@@ -63,7 +63,7 @@ Every input received triggers the reactive program. Next, the program can act on
 
 Just like functional languages let you transform arrays the reactive libraries let us transform streams with a function like *map*. As known from arrays this transformation applies a given function to each element in the stream, producing a stream equal in timing but with transformed elements. To eliminate some elements the *filter* operator can be used.
 
-Another feat from the Haskell-like origins is the support for *flatMap*, converting elements into streams and combining the many streams in a single resulting stream. The flatMap operator is part of why some stream data types are Monads. For example Elm lacks flatMap as it Signals explicitly are no Monads but Applicative Functors. More on this in section X.
+A feature from the Haskell-like origins is the support for *flatMap*, an operation that's takes a function which produces a new stream for each incoming element and combines the many new streams in a single resulting stream. The flatMap operator is part of the requirements for a type to be a Monad, and not all libraries have a data type which is a Monad. For example Elm lacks flatMap as it Signals explicitly are no Monads but Applicative Functors. More on this in section X.
 
 Beside element transformations also time manipulating operators are available. The name of methods like *delay* and *throttle* speak for themselves. More of such transformations exists, depending on the library we use.
 
@@ -83,7 +83,7 @@ Pull based systems propagate changes whenever the subscriber requires new data. 
 It can be argued that pull based systems are not 'reactive' in the sense of the original definition: the subscriber is in charge of requesting new data, so it is possible that the system does not operate at the speed of the environment. Depending on the use case this can be a good thing, but in most use cases for Reactive Programming pull-based systems theoretically offer better performance.
 
 ## Syntax
-Not really the term that is discussed here, but it needs mentioning that some languages require more verbose syntax than others. Rx, Reactive Streams, Java Streams all use a comparable syntax: factory methods are available in the form of static methods and to apply operation on the streams class methods are available. This often leads to the method chaining pattern:
+It should also be mentioned that some languages require more verbose syntax than others. Rx, Reactive Streams, Java Streams all use a comparable syntax: factory methods are available in the form of static methods and to apply operation on the streams class methods are available. This often leads to the method chaining pattern:
 
 ````
 factoryMethod(value)
@@ -92,7 +92,14 @@ factoryMethod(value)
   .subscribe(v => console.log(v));
 ````
 
-Other syntax ... 
+Other libraries, especially in dynamic languages, have a more implicit syntax.
+
+You can for example write the following code in Meteor which will always show the current amount of users, even when a new user is added or removed in another session:
+
+Template.helpers.twiceTheUserCount = () => Users.count() * 2
+<div>{{ twiceTheUserCount }}</div>
+
+In this example the count is a stream, but the operation is done on a single stream element. The code 'Users.count() * 2' is a new stream, because a dependency is registered when the first stream is evaluated. Meteor makes use of the dynamic nature of the language to detect whether a function is a normal function or a reactive one, which needs to be re-evaluated. A limitation of this syntax is losing control over the stream as a collection. Streams are not first class, merely just re-evaluated functions. This is ideal for data-binding, but somewhat limiting considering other libraries allow you to accumulate over previous values for example. Or disconnect a stream when we are not interested anymore.
 
 ## Dependency graph
 
