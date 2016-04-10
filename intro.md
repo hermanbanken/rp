@@ -96,10 +96,12 @@ Other libraries, especially in dynamic languages, have a more implicit syntax.
 
 You can for example write the following code in Meteor which will always show the current amount of users, even when a new user is added or removed in another session:
 
+````
 Template.helpers.twiceTheUserCount = () => Users.count() * 2
-<div>{{ twiceTheUserCount }}</div>
+Count: {{ twiceTheUserCount }}
+````
 
-In this example the count is a stream, but the operation is done on a single stream element. The code 'Users.count() * 2' is a new stream, because a dependency is registered when the first stream is evaluated. Meteor makes use of the dynamic nature of the language to detect whether a function is a normal function or a reactive one, which needs to be re-evaluated. A limitation of this syntax is losing control over the stream as a collection. Streams are not first class, merely just re-evaluated functions. This is ideal for data-binding, but somewhat limiting considering other libraries allow you to accumulate over previous values for example. Or disconnect a stream when we are not interested anymore.
+In this example the count is a stream, but the operation is done on a single stream element. The code `Users.count() * 2` is a new stream, because a dependency is registered when the first stream is evaluated. Meteor makes use of the dynamic nature of the language to detect whether a function is a normal function or a reactive one, which needs to be re-evaluated. A limitation of this syntax is losing control over the stream as a collection. Streams are not first class, merely just re-evaluated functions. This is ideal for data-binding, but somewhat limiting considering other libraries allow you to accumulate over previous values for example. Or disconnect a stream when we are not interested anymore.
 
 ## Dependency graph
 
@@ -114,9 +116,13 @@ const joined = Rx.Observable.combineLatest(alphabet, numbers, (s, n) => s + n);
 join.subscribe(v => console.log(v));
 ````
 
-<iframe src="http://localhost:8085/index.html?v5" width="100%" height="300"></iframe>
+<iframe src="modules/deps-rx/index.html" width="100%" height="300" style="border:none"></iframe>
 
-In contrast, some other languages construct the dependency graph automatically by registering dependencies upon execution. An example of this is Tracker, Meteor's reactivity module. In Meteor by wrapping functions in  
+In contrast, some other languages construct the dependency graph automatically by registering dependencies upon execution. An example of this is Tracker, Meteor's reactivity module. In Meteor by wrapping functions in `Tracker.autorun`...
+
+- More on Meteor
+- More on Signal
+- More on Elm
 
 # Background
 
