@@ -31,6 +31,7 @@ Hangout meeting 2016-04-02, Meijer & Banken
 
 ## Notes
 Verschillende aspecten
+
 - tijd belangrijk bij FRP
 - Rx collecties belangrijk
 - Elm statische dependencies
@@ -43,6 +44,7 @@ explicit/implicit?
 stijl anders, maar conceptueel het zelfde
 
 hot cold, mensen raken in de war
+
 - precies hetzelfde als iterators
 - meestal niet je eigen iterables
 - yield/return, doe je het wel
@@ -66,6 +68,7 @@ Toen overgestapt op Monadic IO
 ref, [Staltz: https://gitter.im/helsinki-frp/forall/archives/2015/07/24]
 
 refs:
+
 - [why Monadic instead of Stream IO in Haskell?](http://programmers.stackexchange.com/questions/149420/why-did-the-haskell-committee-choose-monads-to-represent-i-o) 
 - [how did Haskell look like with Stream IO?](http://stackoverflow.com/questions/17002119/haskell-pre-monadic-i-o)
 - [Staltz saying Cycle is indeed Stream IO and Monadic would be messy](https://gitter.im/helsinki-frp/forall/archives/2015/07/24)
