@@ -644,22 +644,35 @@ instance Applicative Behaviour where
 
 <p>To demonstrate that dynamic languages with implicit reactivity has a disadvantage too: you loose precise control. Lets demonstrate this. In the following snippet we setup 2 reactive variables, and with Tracker.autorun we register a dependency. When using Meteor normally, you would register the dependency in the template setup method. That function is already wrapped in Tracker.autorun, making the snippet fully implicit.</p>
 
+<p><a href="https://jsbin.com/gist/1faf808f8a9183d6a5c1384376d850e2?js,console">jsbin</a></p>
+
 <pre><code>var energyUse = ReactiveVar(0);
 var energyAccumulate = ReactiveVar(0);
+
 Tracker.autorun(() =&gt; {
-  // Register dependency
-  energyUse.get();
-  energyAccumulate.set(energyAccumulate.get() + energyUse.get());
+  // Do not register dependency on energyAccumulate
+  var prev = Tracker.nonreactive(() =&gt; energyAccumulate.get());
+  // Registering dependency on energyUse
+  energyAccumulate.set(prev + energyUse.get());
 });
-console.assert(energyAccumulate() == 0, "Only initial run is executed")
+
+// Only initial run is executed
+console.assert(energyAccumulate.get() == 0)
+
 energyUse.set(3);
 energyUse.set(5);
 energyUse.set(34);
-console.assert(energyAccumulate.get() == 0, "Still no next change triggered")
-setTimeout(() =&gt; console.assert(energyAccumulate.get() == 34, "Initial autorun + 1 combined update"), 100)
+
+// Still no next change triggered
+console.assert(energyAccumulate.get() == 0)
+
+// Initial autorun + 1 combined update
+setTimeout(() =&gt; console.assert(energyAccumulate.get() == 34), 100)
 </code></pre>
 
 <p>After running the snippet the energyAccumulate is still 0. Tracker immediately executes the supplied function, but does not trigger the function again until the next process tick or event loop. The final answer is 34, which is clearly wrong. To remedy this we need to schedule the updates separately:</p>
+
+<p><a href="http://jsbin.com/gist/de3a027d26b4628b8498bc7a95f85ab2?js,console" title="">jsbin</a></p>
 
 <pre><code>setTimeout(() =&gt; energyUse.set(3), 100);
 setTimeout(() =&gt; energyUse.set(5), 200);
@@ -668,6 +681,8 @@ setTimeout(() =&gt; console.assert(energyAccumulate.get() == 42, "Initial autoru
 </code></pre>
 
 <p>But this is still not reliable as Tracker might not run in-between those timeouts. We simply do not have any control like we would have with an explicit language. Consider the following Rx example:</p>
+
+<p><a href="http://jsbin.com/gist/af547c0561d1f01cafe58931544b2ec9?js,console" title="">jsbin</a></p>
 
 <pre><code>var energyUse = new Rx.ReplaySubject(1);
 var energyAccumulate = energyUse.scan((acc, value) =&gt; acc+value, 0);
