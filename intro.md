@@ -56,7 +56,7 @@ We will go into the specifics of some implementations later in this article, but
 | [Rx](https://reactivex.io) | Observable |
 | [Akka](https://akka.io) | Source |
 | [RS](https://github.com/reactive-streams/reactive-streams-jvm/blob/v1.0.0/README.md#specification) | Publisher |
-| [Java 8](http://www.oracle.com/technetwork/articles/java/ma14-java-se-8-streams-2177646.html) | Stream |
+| [Java 9 Flow](http://gee.cs.oswego.edu/dl/jsr166/dist/docs/java/util/concurrent/Flow.html) | Flow.Publisher |
 
 In the following sections we will use the term *stream* when we refer to input in general, without referring to any specific data type. We will use a capital when referring to specific types.
 
