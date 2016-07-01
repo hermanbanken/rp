@@ -3,15 +3,15 @@ In recent years many developers have been introduced to some sort of Reactive Pr
 be it via [Rx](http://reactivex.io), [Elm](http://elm-lang.org), [Akka](http://akka.io) or [Meteor](http://meteor.com).
 These developers will know that the learning curve is steep and it takes time to fully understand all aspects of reactive programming.
 Developers who have not been using reactive programming might have withheld it because they had trouble understanding the abstract concepts.
-While it requires some time to understand, the effort pays of: 
-programs written using reactive programming are generally better structured and shorter. 
-The libraries and frameworks allow to focus more on how data is transformed 
+While it requires some time to understand, the effort pays of:
+programs written using reactive programming are generally better structured and shorter.
+The libraries and frameworks allow to focus more on how data is transformed
 and less on the peculiarities of moving the data around.
 
-This blog first introduces the basic concepts of reactive programming 
-as well as some of the more advanced topics. 
-We will use different languages and frameworks where appropriate to the subjects discussed. 
-The section also contains some links to more background information. 
+This blog first introduces the basic concepts of reactive programming
+as well as some of the more advanced topics.
+We will use different languages and frameworks where appropriate to the subjects discussed.
+This section also contains some links to more background information.
 
 The second part of the blog discusses some practical examples, comparing features of different frameworks and explaining specific functionality or complications.
 
@@ -30,10 +30,10 @@ Many languages and frameworks offer a way in to reactive programming, but they a
 > <br>- Gérard Berry, 1989
 
 In practice this means you should use a reactive programming library when
- 
-- you **are not** in control of the stream of input and 
+
+- you **are not** in control of the stream of input and
 - you **must** respond at the rate of the input arriving [[SO](http://stackoverflow.com/a/36060020/552203)].
- 
+
 It is very common to not be in control of the input: in every client-server or service architecture the client is a source of uncontrollable input. Timely responses are also very commonly requested by customers. In retrospective a lot of systems are suitable for reactive programming.
 
 It is less practical or necessary to use reactive programming libraries when you are in control of the input or when you do not need to respond quickly. In these cases it mainly introduces overhead compared to normal batch processing using for-loops and linearly executed code. When used to handle irregular (reactive) input this overhead is typically minimal compared to the time the processor can be idle between inputs.
@@ -42,6 +42,8 @@ Other technology and concepts exist that leverage the term *reactive*, in the se
 
 ## Stream / Event / Observable / Signal
 Above section refers to some kind of input. In order to reference this input reactive programming libraries use a special data type. Just like an Array encapsulates data in (memory) space, they use this type to encapsulate data in time. The libraries use different names and the semantics of the types differ too, but a stream of data over time is the general idea.
+
+![Space and Time](space-time.png)
 
 In the first Functional Reactive Programming (FRP) [libraries](http://conal.net/papers/icfp97/icfp97.pdf) this type was called a Event for discrete data or a Behaviour for continuous data. Working with the input as a continuous stream of data helps in animation or physical simulations because the discretisation that is inherit to digital circuitry is abstracted away. It is however also difficult to implement and optimise. Especially when different parts of the system require different simulation frequenties creating an implementation that is transparent to the developer was found to be hard and compromises to the original idea [were made](http://conal.net/papers/push-pull-frp/push-pull-frp.pdf). Later implementations mainly focus on discrete input.
 
@@ -70,20 +72,24 @@ Beside element transformations also time manipulating operators are available. T
 ## Evaluation model
 Each reactive programming language or framework has an evaluation model, responsible for propagating changes. This evaluation model of a reactive system is mostly hidden to the user, but it influences the performance and the capabilities that the system offers. Generally two paradigms exist: push and pull. In this section we explains both their advantages and disadvantages, and use cases.
 
-When propagating changes in a reactive system, either of the source or dependants can be in charge of initiating the propagation. Either the sources send (push) values to their dependants or the dependants request (pull) the values from their sources. Don't be confused: the data always originates at the source and flows to destination, but who is responsible is what changes.
+When propagating changes in a reactive system, either the source or dependants can be in charge of initiating the propagation. Either the sources send (push) values to their dependants or the dependants request (pull) the values from their sources. Don't be confused: the data always originates at the source and flows to destination, but who is responsible is what changes.
 
 ### Push
 
-Push based reactive systems propagate changes to subscribers as soon as new data arrives. It is data-driven. To achieve this, such a system let subscribers register with the source or observable to receive updates first. The source then remembers who is subscribed. Later, when a source changes, it pushes an update to all dependants. There is nothing the dependant can do to stop this, except unregistering. This conforms to the original definition of Reactive Programming: the dependant operates at the speed of the environment providing new data. This ensures the fasted delivery possible: whenever new data is available it reaches the destination. A disadvantage is that the programmer needs to make sure that processing the change is fast, virtually instant. Luckily frameworks generally implement ways to de-duplicate, buffer or drop superfluous changes. Push based systems work best when changes have a discrete character, for example clicks or tweets, and there is no sample rate that is seriously limiting the main effect. Push based is thus more suitable for updating a database or application UIs than for example the game loop of a 60fps 3d shooter game.
+Push based reactive systems propagate changes to subscribers as soon as new data arrives. It is data-driven. To achieve this, such a system lets subscribers register with the source or observable to receive updates first. The source then remembers who is subscribed. Later, when a source changes, it pushes an update to all dependants. There is nothing the dependant can do to stop this, except unregistering.
+
+This conforms to the original definition of Reactive Programming: the dependant operates at the speed of the environment providing new data. This ensures the fastest delivery possible: whenever new data is available it reaches the destination. 
+
+A disadvantage is that the programmer needs to make sure that processing the change is fast, virtually instant. Luckily frameworks generally implement ways to de-duplicate, buffer or drop superfluous changes. Push based systems work best when changes have a discrete character, for example clicks or tweets, and there is no sample rate that is seriously limiting the main effect. Push based is thus more suitable for updating a database or application UIs than for example the game loop of a 60fps 3d shooter game.
 
 ### Pull
 
 Pull based systems propagate changes whenever the subscriber requires new data. They are demand-driven. The first Functional Reactive Programming languages (Fran) were pull based. It matches well with the concept of a Behaviour, a continuous function: continuous functions need to be sampled to visualise them on a screen or write them to disk. When a new sample is started each value requests the values of it's upstream dependencies. This ensures no wasteful computations are done in-between samples, but also introduces a delay between changes and their effect: on average half the sample rate and in the worst case the full sample rate.
 
-It can be argued that pull based systems are not 'reactive' in the sense of the original definition: the subscriber is in charge of requesting new data, so it is possible that the system does not operate at the speed of the environment. Depending on the use case this can be a good thing, but in most use cases for Reactive Programming pull-based systems theoretically offer better performance.
+It can be argued that pull based systems are not 'reactive' in the sense of the original definition: the subscriber is in charge of requesting new data, so it is possible that the system does not operate at the speed of the environment. Depending on the use case this can be a good thing, but in most use cases for Reactive Programming push-based systems theoretically offer better performance.
 
 ## Syntax
-It should also be mentioned that some languages require more verbose syntax than others. Rx, Reactive Streams, Java Streams all use a comparable syntax: factory methods are available in the form of static methods and to apply operation on the streams class methods are available. This often leads to the method chaining pattern:
+Some languages require more verbose syntax than others. Rx and Reactive Streams both use a comparable syntax: factory methods are available in the form of static methods and to apply operations on the streams several class methods are available. This often leads to the method chaining pattern):
 
 ````
 factoryMethod(value)
@@ -105,7 +111,7 @@ In this example the count is a stream, but the operation is done on a single str
 
 ## Dependency graph
 
-In both evaluation models either explicitly or implicitly a dependency graph is formed. Either the subscribers know where to pull or the producers know where to push new data. Libraries like Akka and Rx let us explicitly define the relations by wiring sources and operations to subscribers. 
+In both evaluation models either explicitly or implicitly a dependency graph is formed. Either the subscribers know where to pull or the producers know where to push new data. Libraries like Akka and Rx let us explicitly define the relations by wiring sources and operations to subscribers.
 
 In the following Rx example three streams are defined. By subscribing to the last stream called `joined` the system is started. This stream is explicitly defined by using the combineLatest operator, wiring up dependencies.
 
@@ -184,7 +190,7 @@ Reactive Programming was first mentioned in research about Real-Time and Reactiv
 In 1997 Elliot and Hudak use a functional rather than imperative style for their Reactive Animation system Fran [[Elliot, 1997]](http://www.eecs.northwestern.edu/~robby/courses/395-495-2009-winter/fran.pdf). Being the first FRP framework, Fran is often referred to as classic functional reactive programming (Classic FRP). It provided a basis for future research into (functional) reactive programming by creating the notion of events and behaviours.
 
 #### Abstractions
-In FRP two reactive data types existed: Events and Behaviours. Events represent a sequence of discrete timestamped values: 
+In FRP two reactive data types existed: Events and Behaviours. Events represent a sequence of discrete timestamped values:
 
 <center>
 Events α = [(Time, α)]
@@ -202,7 +208,7 @@ There exists an isomorphism between Events and Behaviours, as shown by [[Wan et 
 Event α ≈ Behaviour ( Option α )
 </center>
 
-Here <abbr title="scalism, here Option/Some/None, but actually called Maybe/Just/Nothing in the original paper">Option</abbr> 
+Here <abbr title="scalism, here Option/Some/None, but actually called Maybe/Just/Nothing in the original paper">Option</abbr>
 is an abstract data type, being either Some α or None. This isomorphism simplifies the semantics: we can now represent both behaviours and events in a common data type. Wan et al. call this a <em>Signal</em>:
 
 <center>
@@ -242,7 +248,7 @@ For Event's the Monoid and Monad instances are defined by Elliot. The Monoid ins
 # Examples on Advanced Topics
 
 - discuss hot cold here, why it is not so important, but why so confusing?
-- example of reactive Excel sheet? 
+- example of reactive Excel sheet?
 	- extend functions to have previous value option
 	- delay operators
 	- allow connecting to web sockets
@@ -253,13 +259,20 @@ For Event's the Monoid and Monad instances are defined by Elliot. The Monoid ins
 ## Glitches
 Some reactive libraries advocate to be glitch free, which sounds good, but what does it mean? Glitches are described as a temporarily state that is incorrect and should not occur. A very simple and often used example is a triangle shape dependency graph. Node A is a reactive value and node B depends on it. Node C depends on both A and B and combines the resulting values somehow. Now when node A changes both B and C must also be updated. Now a glitch occurs if the changes of A and B do not arrive at C at the exact same instant. Some languages have some sort of clock tick which allows the changes to be buffered until the next tick, and some do not. It is important to know whether the language you are using prevents glitches or not. Arguably glitches do not matter: nothing ever happens simultaneous in a single cpu core, so even the intermediate state should be regarded as correct. When you do not expect these states however, nasty bugs could creep in.
 
-<!-- 
+<!--
+
+Examples:
+-
+
+-->
+
+<!--
 Ideas:
 - use bigfoot.js for footnotes
 
 Inhoud:
 - hot vs cold like https://medium.com/@benlesh/hot-vs-cold-observables-f8094ed53339
-- above fout, het is: 
+- above fout, het is:
 	- Cold observables do not share side effects, they have a private stream for every observer.
 	- Hot observables do share side effects, they multicast if there are multiple listeners.
 	- @source: https://gitter.im/Reactive-Extensions/RxJS?at=56fa94e2d39de41b495ea1fd
