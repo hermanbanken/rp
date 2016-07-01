@@ -115,14 +115,13 @@ In both evaluation models either explicitly or implicitly a dependency graph is 
 
 In the following Rx example three streams are defined. By subscribing to the last stream called `joined` the system is started. This stream is explicitly defined by using the combineLatest operator, wiring up dependencies.
 
+[graph](modules/deps-rx/index.html)
 ````
 const numbers = Rx.Observable.interval(1000);
 const alphabet = Rx.Observable.interval(500).map(i => i % 26 + 97);
 const joined = Rx.Observable.combineLatest(alphabet, numbers, (s, n) => s + n);
 join.subscribe(v => console.log(v));
 ````
-
-<iframe src="modules/deps-rx/index.html" width="100%" height="300" style="border:none"></iframe>
 
 In contrast, some other languages construct the dependency graph automatically by registering dependencies upon execution. An example of this is Tracker, Meteor's reactivity module. In Meteor by wrapping functions in `Tracker.autorun`...
 
@@ -272,24 +271,36 @@ For Event's the Monoid and Monad instances are defined by Elliot. The Monoid ins
 ## Difficulties with implicit syntax
 To demonstrate that dynamic languages with implicit reactivity has a disadvantage too: you loose precise control. Lets demonstrate this. In the following snippet we setup 2 reactive variables, and with Tracker.autorun we register a dependency. When using Meteor normally, you would register the dependency in the template setup method. That function is already wrapped in Tracker.autorun, making the snippet fully implicit.
 
+[jsbin](https://jsbin.com/gist/1faf808f8a9183d6a5c1384376d850e2?js,console)
+
 ````
 var energyUse = ReactiveVar(0);
 var energyAccumulate = ReactiveVar(0);
+
 Tracker.autorun(() => {
-  // Register dependency
-  energyUse.get();
-  energyAccumulate.set(energyAccumulate.get() + energyUse.get());
+  // Do not register dependency on energyAccumulate
+  var prev = Tracker.nonreactive(() => energyAccumulate.get());
+  // Registering dependency on energyUse
+  energyAccumulate.set(prev + energyUse.get());
 });
-console.assert(energyAccumulate() == 0, "Only initial run is executed")
+
+// Only initial run is executed
+console.assert(energyAccumulate.get() == 0)
+
 energyUse.set(3);
 energyUse.set(5);
 energyUse.set(34);
-console.assert(energyAccumulate.get() == 0, "Still no next change triggered")
-setTimeout(() => console.assert(energyAccumulate.get() == 34, "Initial autorun + 1 combined update"), 100)
 
+// Still no next change triggered
+console.assert(energyAccumulate.get() == 0)
+
+// Initial autorun + 1 combined update
+setTimeout(() => console.assert(energyAccumulate.get() == 34), 100)
 ````
 
 After running the snippet the energyAccumulate is still 0. Tracker immediately executes the supplied function, but does not trigger the function again until the next process tick or event loop. The final answer is 34, which is clearly wrong. To remedy this we need to schedule the updates separately:
+
+[jsbin](http://jsbin.com/gist/de3a027d26b4628b8498bc7a95f85ab2?js,console")
 
 ````
 setTimeout(() => energyUse.set(3), 100);
@@ -299,6 +310,8 @@ setTimeout(() => console.assert(energyAccumulate.get() == 42, "Initial autorun +
 ````
 
 But this is still not reliable as Tracker might not run in-between those timeouts. We simply do not have any control like we would have with an explicit language. Consider the following Rx example:
+
+[jsbin](http://jsbin.com/gist/af547c0561d1f01cafe58931544b2ec9?js,console")
 
 ````
 var energyUse = new Rx.ReplaySubject(1);
