@@ -321,7 +321,7 @@ and less on the peculiarities of moving the data around.</p>
 <p>This blog first introduces the basic concepts of reactive programming
 as well as some of the more advanced topics.
 We will use different languages and frameworks where appropriate to the subjects discussed.
-The section also contains some links to more background information.</p>
+This section also contains some links to more background information.</p>
 
 <p>The second part of the blog discusses some practical examples, comparing features of different frameworks and explaining specific functionality or complications.</p>
 
@@ -357,6 +357,8 @@ at a speed determined by the environment instead of the program itself.
 
 <p>Above section refers to some kind of input. In order to reference this input reactive programming libraries use a special data type. Just like an Array encapsulates data in (memory) space, they use this type to encapsulate data in time. The libraries use different names and the semantics of the types differ too, but a stream of data over time is the general idea.</p>
 
+<p><img src="space-time.png" alt="Space and Time" /></p>
+
 <p>In the first Functional Reactive Programming (FRP) <a href="http://conal.net/papers/icfp97/icfp97.pdf">libraries</a> this type was called a Event for discrete data or a Behaviour for continuous data. Working with the input as a continuous stream of data helps in animation or physical simulations because the discretisation that is inherit to digital circuitry is abstracted away. It is however also difficult to implement and optimise. Especially when different parts of the system require different simulation frequenties creating an implementation that is transparent to the developer was found to be hard and compromises to the original idea <a href="http://conal.net/papers/push-pull-frp/push-pull-frp.pdf">were made</a>. Later implementations mainly focus on discrete input.</p>
 
 <p>We will go into the specifics of some implementations later in this article, but for now the following summary of types should suffice:</p>
@@ -390,8 +392,8 @@ at a speed determined by the environment instead of the program itself.
 <td> Publisher </td>
 </tr>
 <tr>
-<td> <a href="http://www.oracle.com/technetwork/articles/java/ma14-java-se-8-streams-2177646.html">Java 8</a> </td>
-<td> Stream </td>
+<td> <a href="http://gee.cs.oswego.edu/dl/jsr166/dist/docs/java/util/concurrent/Flow.html">Java 9 Flow</a> </td>
+<td> Flow.Publisher </td>
 </tr>
 </tbody>
 </table>
@@ -413,21 +415,25 @@ at a speed determined by the environment instead of the program itself.
 
 <p>Each reactive programming language or framework has an evaluation model, responsible for propagating changes. This evaluation model of a reactive system is mostly hidden to the user, but it influences the performance and the capabilities that the system offers. Generally two paradigms exist: push and pull. In this section we explains both their advantages and disadvantages, and use cases.</p>
 
-<p>When propagating changes in a reactive system, either of the source or dependants can be in charge of initiating the propagation. Either the sources send (push) values to their dependants or the dependants request (pull) the values from their sources. Don't be confused: the data always originates at the source and flows to destination, but who is responsible is what changes.</p>
+<p>When propagating changes in a reactive system, either the source or dependants can be in charge of initiating the propagation. Either the sources send (push) values to their dependants or the dependants request (pull) the values from their sources. Don't be confused: the data always originates at the source and flows to destination, but who is responsible is what changes.</p>
 
 <h3>Push</h3>
 
-<p>Push based reactive systems propagate changes to subscribers as soon as new data arrives. It is data-driven. To achieve this, such a system let subscribers register with the source or observable to receive updates first. The source then remembers who is subscribed. Later, when a source changes, it pushes an update to all dependants. There is nothing the dependant can do to stop this, except unregistering. This conforms to the original definition of Reactive Programming: the dependant operates at the speed of the environment providing new data. This ensures the fasted delivery possible: whenever new data is available it reaches the destination. A disadvantage is that the programmer needs to make sure that processing the change is fast, virtually instant. Luckily frameworks generally implement ways to de-duplicate, buffer or drop superfluous changes. Push based systems work best when changes have a discrete character, for example clicks or tweets, and there is no sample rate that is seriously limiting the main effect. Push based is thus more suitable for updating a database or application UIs than for example the game loop of a 60fps 3d shooter game.</p>
+<p>Push based reactive systems propagate changes to subscribers as soon as new data arrives. It is data-driven. To achieve this, such a system lets subscribers register with the source or observable to receive updates first. The source then remembers who is subscribed. Later, when a source changes, it pushes an update to all dependants. There is nothing the dependant can do to stop this, except unregistering.</p>
+
+<p>This conforms to the original definition of Reactive Programming: the dependant operates at the speed of the environment providing new data. This ensures the fastest delivery possible: whenever new data is available it reaches the destination.</p>
+
+<p>A disadvantage is that the programmer needs to make sure that processing the change is fast, virtually instant. Luckily frameworks generally implement ways to de-duplicate, buffer or drop superfluous changes. Push based systems work best when changes have a discrete character, for example clicks or tweets, and there is no sample rate that is seriously limiting the main effect. Push based is thus more suitable for updating a database or application UIs than for example the game loop of a 60fps 3d shooter game.</p>
 
 <h3>Pull</h3>
 
 <p>Pull based systems propagate changes whenever the subscriber requires new data. They are demand-driven. The first Functional Reactive Programming languages (Fran) were pull based. It matches well with the concept of a Behaviour, a continuous function: continuous functions need to be sampled to visualise them on a screen or write them to disk. When a new sample is started each value requests the values of it's upstream dependencies. This ensures no wasteful computations are done in-between samples, but also introduces a delay between changes and their effect: on average half the sample rate and in the worst case the full sample rate.</p>
 
-<p>It can be argued that pull based systems are not 'reactive' in the sense of the original definition: the subscriber is in charge of requesting new data, so it is possible that the system does not operate at the speed of the environment. Depending on the use case this can be a good thing, but in most use cases for Reactive Programming pull-based systems theoretically offer better performance.</p>
+<p>It can be argued that pull based systems are not 'reactive' in the sense of the original definition: the subscriber is in charge of requesting new data, so it is possible that the system does not operate at the speed of the environment. Depending on the use case this can be a good thing, but in most use cases for Reactive Programming push-based systems theoretically offer better performance.</p>
 
 <h2>Syntax</h2>
 
-<p>It should also be mentioned that some languages require more verbose syntax than others. Rx, Reactive Streams, Java Streams all use a comparable syntax: factory methods are available in the form of static methods and to apply operation on the streams class methods are available. This often leads to the method chaining pattern:</p>
+<p>Some languages require more verbose syntax than others. Rx and Reactive Streams both use a comparable syntax: factory methods are available in the form of static methods and to apply operations on the streams several class methods are available. This often leads to the method chaining pattern):</p>
 
 <pre><code>factoryMethod(value)
   .map(f)
@@ -443,7 +449,7 @@ at a speed determined by the environment instead of the program itself.
 Count: {{ twiceTheUserCount }}
 </code></pre>
 
-<p>In this example the count is a stream, but the operation is done on a single stream element. The code <code>Users.count() * 2</code> is a new stream, because a dependency is registered when the first stream is evaluated. Meteor makes use of the dynamic nature of the language to detect whether a function is a normal function or a reactive one, which needs to be re-evaluated. A limitation of this syntax is losing control over the stream as a collection. Streams are not first class, merely just re-evaluated functions. This is ideal for data-binding, but somewhat limiting considering other libraries allow you to accumulate over previous values for example. Or disconnect a stream when we are not interested anymore.</p>
+<p>In this example the count is a stream, but the operation is done on a single stream element. The code <code>Users.count() * 2</code> is a new stream, because a dependency is registered when the first stream is evaluated. Meteor makes use of the dynamic nature of the language to detect whether a function is a normal function or a reactive one, which needs to be re-evaluated. A limitation of this syntax is losing control over the stream as a collection. Streams are not first class, merely just re-evaluated functions. This is ideal for data-binding, but somewhat limiting for more advanced usage. Consider for example that other libraries allow you to accumulate over previous values, or disconnect a stream when we are not interested anymore. To show why this does not work, see the example in the section <a href="#Difficulties-with-implicit-syntax">Difficulties with implicit syntax</a>.</p>
 
 <h2>Dependency graph</h2>
 
@@ -523,6 +529,19 @@ join.subscribe(v =&gt; console.log(v));
 <h3>4. Reactive Programming</h3>
 
 <p>One step ahead of data bindings is Reactive Programming. Besides reasoning over current values we can now model and reason about complete data flows. We can, without side-effects, count the occurrences of an event, or aggregate them, for example.</p>
+
+<h2>Different (F)RP libraries</h2>
+
+<p>Each library and/or platform offers distinct features. To summarise some features:</p>
+
+<ul>
+<li>Fran handles (continuous) time and its implementation abstracts away the required discretisation.</li>
+<li>Rx is about async collections: it is the async dual of Iterables.</li>
+<li>Elm is about pureness and writing Haskell for the browser, guaranteeing zero runtime exceptions, and offering for example a Time-traveling debugger.</li>
+<li>Reactive Streams is like Rx, but with back-pressure built-in to the interface from the start. Only a specification.</li>
+<li>Java Flow is an implementation of the Reactive Streams library, scheduled to be included in Java 9. Not yet available in release builds.</li>
+</ul>
+
 
 <h2>Some History</h2>
 
@@ -615,20 +634,76 @@ instance Applicative Behaviour where
 </li>
 <li>CycleJS with monadic IO</li>
 <li>visual example of back pressure and why that does not work</li>
+<li>Sensor Fusion example from course but then using Rx</li>
+<li>traffic information agent : changing traffic causes changing departure time / arrival time</li>
+<li>weather agent: rain predicted causes calendar to change</li>
 </ul>
 
+
+<h2>Difficulties with implicit syntax</h2>
+
+<p>To demonstrate that dynamic languages with implicit reactivity has a disadvantage too: you loose precise control. Lets demonstrate this. In the following snippet we setup 2 reactive variables, and with Tracker.autorun we register a dependency. When using Meteor normally, you would register the dependency in the template setup method. That function is already wrapped in Tracker.autorun, making the snippet fully implicit.</p>
+
+<pre><code>var energyUse = ReactiveVar(0);
+var energyAccumulate = ReactiveVar(0);
+Tracker.autorun(() =&gt; {
+  // Register dependency
+  energyUse.get();
+  energyAccumulate.set(energyAccumulate.get() + energyUse.get());
+});
+console.assert(energyAccumulate() == 0, "Only initial run is executed")
+energyUse.set(3);
+energyUse.set(5);
+energyUse.set(34);
+console.assert(energyAccumulate.get() == 0, "Still no next change triggered")
+setTimeout(() =&gt; console.assert(energyAccumulate.get() == 34, "Initial autorun + 1 combined update"), 100)
+</code></pre>
+
+<p>After running the snippet the energyAccumulate is still 0. Tracker immediately executes the supplied function, but does not trigger the function again until the next process tick or event loop. The final answer is 34, which is clearly wrong. To remedy this we need to schedule the updates separately:</p>
+
+<pre><code>setTimeout(() =&gt; energyUse.set(3), 100);
+setTimeout(() =&gt; energyUse.set(5), 200);
+setTimeout(() =&gt; energyUse.set(34), 300);
+setTimeout(() =&gt; console.assert(energyAccumulate.get() == 42, "Initial autorun + 3 updates"), 400)
+</code></pre>
+
+<p>But this is still not reliable as Tracker might not run in-between those timeouts. We simply do not have any control like we would have with an explicit language. Consider the following Rx example:</p>
+
+<pre><code>var energyUse = new Rx.ReplaySubject(1);
+var energyAccumulate = energyUse.scan((acc, value) =&gt; acc+value, 0);
+energyAccumulate.subscribe(c =&gt; console.log(c));
+
+userCount.onNext(3);
+// prints 3
+userCount.onNext(5));
+// prints 8
+userCount.onNext(34);
+// prints 42
+</code></pre>
+
+<p>In this example you have full control of how the stream is handled. You will not miss messages (unless you choose to drop them).</p>
 
 <h2>Glitches</h2>
 
 <p>Some reactive libraries advocate to be glitch free, which sounds good, but what does it mean? Glitches are described as a temporarily state that is incorrect and should not occur. A very simple and often used example is a triangle shape dependency graph. Node A is a reactive value and node B depends on it. Node C depends on both A and B and combines the resulting values somehow. Now when node A changes both B and C must also be updated. Now a glitch occurs if the changes of A and B do not arrive at C at the exact same instant. Some languages have some sort of clock tick which allows the changes to be buffered until the next tick, and some do not. It is important to know whether the language you are using prevents glitches or not. Arguably glitches do not matter: nothing ever happens simultaneous in a single cpu core, so even the intermediate state should be regarded as correct. When you do not expect these states however, nasty bugs could creep in.</p>
 
-<!-- 
+<!--
+
+Examples:
+-
+
+-->
+
+
+
+
+<!--
 Ideas:
 - use bigfoot.js for footnotes
 
 Inhoud:
 - hot vs cold like https://medium.com/@benlesh/hot-vs-cold-observables-f8094ed53339
-- above fout, het is: 
+- above fout, het is:
     - Cold observables do not share side effects, they have a private stream for every observer.
     - Hot observables do share side effects, they multicast if there are multiple listeners.
     - @source: https://gitter.im/Reactive-Extensions/RxJS?at=56fa94e2d39de41b495ea1fd
