@@ -178,6 +178,16 @@ Not recognising events has some implications: data binding systems only intent t
 
 One step ahead of data bindings is Reactive Programming. Besides reasoning over current values we can now model and reason about complete data flows. We can, without side-effects, count the occurrences of an event, or aggregate them, for example.
 
+## Different (F)RP libraries
+
+Each library and/or platform offers distinct features. To summarise some features:
+
+- Fran handles (continuous) time and its implementation abstracts away the required discretisation.
+- Rx is about async collections: it is the async dual of Iterables.
+- Elm is about pureness and writing Haskell for the browser, guaranteeing zero runtime exceptions, and offering for example a Time-traveling debugger.
+- Reactive Streams is like Rx, but with back-pressure built-in to the interface from the start. Only a specification.
+- Java Flow is an implementation of the Reactive Streams library, scheduled to be included in Java 9. Not yet available in release builds.
+
 ## Some History
 
 ### Esterel
