@@ -107,7 +107,7 @@ Template.helpers.twiceTheUserCount = () => Users.count() * 2
 Count: {{ twiceTheUserCount }}
 ````
 
-In this example the count is a stream, but the operation is done on a single stream element. The code `Users.count() * 2` is a new stream, because a dependency is registered when the first stream is evaluated. Meteor makes use of the dynamic nature of the language to detect whether a function is a normal function or a reactive one, which needs to be re-evaluated. A limitation of this syntax is losing control over the stream as a collection. Streams are not first class, merely just re-evaluated functions. This is ideal for data-binding, but somewhat limiting considering other libraries allow you to accumulate over previous values for example. Or disconnect a stream when we are not interested anymore.
+In this example the count is a stream, but the operation is done on a single stream element. The code `Users.count() * 2` is a new stream, because a dependency is registered when the first stream is evaluated. Meteor makes use of the dynamic nature of the language to detect whether a function is a normal function or a reactive one, which needs to be re-evaluated. A limitation of this syntax is losing control over the stream as a collection. Streams are not first class, merely just re-evaluated functions. This is ideal for data-binding, but somewhat limiting for more advanced usage. Consider for example that other libraries allow you to accumulate over previous values, or disconnect a stream when we are not interested anymore. To show why this does not work, see the example in the section [Difficulties with implicit syntax](#Difficulties-with-implicit-syntax).
 
 ## Dependency graph
 
@@ -255,6 +255,55 @@ For Event's the Monoid and Monad instances are defined by Elliot. The Monoid ins
 	- show preview
 - CycleJS with monadic IO
 - visual example of back pressure and why that does not work
+- Sensor Fusion example from course but then using Rx
+- traffic information agent : changing traffic causes changing departure time / arrival time
+- weather agent: rain predicted causes calendar to change
+
+## Difficulties with implicit syntax
+To demonstrate that dynamic languages with implicit reactivity has a disadvantage too: you loose precise control. Lets demonstrate this. In the following snippet we setup 2 reactive variables, and with Tracker.autorun we register a dependency. When using Meteor normally, you would register the dependency in the template setup method. That function is already wrapped in Tracker.autorun, making the snippet fully implicit.
+
+````
+var energyUse = ReactiveVar(0);
+var energyAccumulate = ReactiveVar(0);
+Tracker.autorun(() => {
+  // Register dependency
+  energyUse.get();
+  energyAccumulate.set(energyAccumulate.get() + energyUse.get());
+});
+console.assert(energyAccumulate() == 0, "Only initial run is executed")
+energyUse.set(3);
+energyUse.set(5);
+energyUse.set(34);
+console.assert(energyAccumulate.get() == 0, "Still no next change triggered")
+setTimeout(() => console.assert(energyAccumulate.get() == 34, "Initial autorun + 1 combined update"), 100)
+
+````
+
+After running the snippet the energyAccumulate is still 0. Tracker immediately executes the supplied function, but does not trigger the function again until the next process tick or event loop. The final answer is 34, which is clearly wrong. To remedy this we need to schedule the updates separately:
+
+````
+setTimeout(() => energyUse.set(3), 100);
+setTimeout(() => energyUse.set(5), 200);
+setTimeout(() => energyUse.set(34), 300);
+setTimeout(() => console.assert(energyAccumulate.get() == 42, "Initial autorun + 3 updates"), 400)
+````
+
+But this is still not reliable as Tracker might not run in-between those timeouts. We simply do not have any control like we would have with an explicit language. Consider the following Rx example:
+
+````
+var energyUse = new Rx.ReplaySubject(1);
+var energyAccumulate = energyUse.scan((acc, value) => acc+value, 0);
+energyAccumulate.subscribe(c => console.log(c));
+
+userCount.onNext(3);
+// prints 3
+userCount.onNext(5));
+// prints 8
+userCount.onNext(34);
+// prints 42
+
+````
+In this example you have full control of how the stream is handled. You will not miss messages (unless you choose to drop them).
 
 ## Glitches
 Some reactive libraries advocate to be glitch free, which sounds good, but what does it mean? Glitches are described as a temporarily state that is incorrect and should not occur. A very simple and often used example is a triangle shape dependency graph. Node A is a reactive value and node B depends on it. Node C depends on both A and B and combines the resulting values somehow. Now when node A changes both B and C must also be updated. Now a glitch occurs if the changes of A and B do not arrive at C at the exact same instant. Some languages have some sort of clock tick which allows the changes to be buffered until the next tick, and some do not. It is important to know whether the language you are using prevents glitches or not. Arguably glitches do not matter: nothing ever happens simultaneous in a single cpu core, so even the intermediate state should be regarded as correct. When you do not expect these states however, nasty bugs could creep in.
