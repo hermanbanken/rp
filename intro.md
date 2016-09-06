@@ -100,7 +100,7 @@ The reactive libraries let us transform streams with a function like *map*, just
 | --- | ------ | ------- |
 | ![map](http://reactivex.io/documentation/operators/images/map.png) | ![filter](http://reactivex.io/documentation/operators/images/filter.png) | ![flatMap](http://reactivex.io/documentation/operators/images/flatMap.png) |
 
-A feature from the Haskell-like origins is the support for *flatMap*, an operation that's takes a function which produces a new stream for each incoming element and combines the many new streams in a single resulting stream. The flatMap operator is part of the requirements for a type to be a Monad, and not all libraries have a data type which is a Monad. For example Elm initially lacked flatMap as it Signals explicitly were no Monads but Applicative Functors. More on this in the section about [Elm](#elm).
+A feature from the Haskell-like origins is the support for *flatMap*, an operation that's takes a function which produces a new stream for each incoming element and combines the many new streams in a single resulting stream. The flatMap operator is part of the requirements for a type to be a Monad, and not all libraries have a data type which is a Monad. For example Elm initially lacked flatMap as it Signals explicitly were no Monads but Applicative Functors. More on this in section [Elm: no Signals of Signals](#Elm-no-Signals-of-Signals).
 
 Beside element transformations, many other operators are available. For example time manipulating operators. The name of methods like *delay* and *throttle* speak for themselves. Other operators allow us to combine or switch between streams. More or less of such transformations exists, depending on the library we use.
 
@@ -302,6 +302,9 @@ For Event's the Monoid and Monad instances are defined by Elliot. The Monoid ins
 - Sensor Fusion example from course but then using Rx
 - traffic information agent : changing traffic causes changing departure time / arrival time
 - weather agent: rain predicted causes calendar to change
+
+## Elm: no Signals of Signals
+When Evan Czaplicki created Elm he decided to not support Signals of Signals. In official terms: a Signal is an Applicative Functor and not a Monad. His reasoning is that this construction would allow switching statefull signals, and the exact behavior of switched statefull signals would be hard and unpleasant to define. Here a statefull signal is a signal which uses history (in Elm the *foldp* primitive). He uses the example of a statefull signal depending on mouse clicks: for example determining when two clicks are within a certain time frame, to detect double clicks. When the signal would be switched away, should it still need to receive clicks? Or should it only receive those click when in use? Evan decided neither was logical, and opted not to support this behavior altogether.
 
 ## Hot or cold
 A common source of confusion for Rx is whether Observable are either "hot" or "cold".
