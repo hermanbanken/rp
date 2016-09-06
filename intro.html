@@ -457,14 +457,13 @@ Count: {{ twiceTheUserCount }}
 
 <p>In the following Rx example three streams are defined. By subscribing to the last stream called <code>joined</code> the system is started. This stream is explicitly defined by using the combineLatest operator, wiring up dependencies.</p>
 
-<pre><code>const numbers = Rx.Observable.interval(1000);
+<p><a href="modules/deps-rx/index.html">graph</a>
+<code>
+const numbers = Rx.Observable.interval(1000);
 const alphabet = Rx.Observable.interval(500).map(i =&gt; i % 26 + 97);
 const joined = Rx.Observable.combineLatest(alphabet, numbers, (s, n) =&gt; s + n);
 join.subscribe(v =&gt; console.log(v));
-</code></pre>
-
-<iframe src="modules/deps-rx/index.html" width="100%" height="300" style="border:none"></iframe>
-
+</code></p>
 
 <p>In contrast, some other languages construct the dependency graph automatically by registering dependencies upon execution. An example of this is Tracker, Meteor's reactivity module. In Meteor by wrapping functions in <code>Tracker.autorun</code>...</p>
 

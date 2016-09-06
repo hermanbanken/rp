@@ -1,4 +1,5 @@
-# Reactive Programming <small>by Herman Banken</small>
+# Reactive Programming
+
 In recent years many developers have been introduced to some sort of Reactive Programming,
 be it via [Rx](http://reactivex.io), [Elm](http://elm-lang.org), [Akka](http://akka.io) or [Meteor](http://meteor.com).
 These developers will know that the learning curve is steep and it takes time to fully understand all aspects of reactive programming.
@@ -19,7 +20,37 @@ The second part of the blog discusses some practical examples, comparing feature
 
 Shifting away from traditional batch based programs and towards interactive applications, possibly handling large amounts of live data, we as developers needed a new toolchain. Traditionally we would gather all data, put it into a computer and it would run over night, hopefully being done in the morning. Nowadays we get new data constantly and want it processed immediately, updating the output instantly. We also make more interactive applications, handling more sorts of inputs. Next to just clicks, our phones now have sensors to register all kinds of inputs. The speed at which the program needs to work is determined by the environment, as with *reactive* programs, in contrast to traditional *transformational* programs.
 
-With reactive programming you can write more comprehensible code, because you can model the data-flow instead of passing the data around manually. You describe what happens when new parts of data arrive, define through which transformations the data should go, and which output gets generated in response to the input. At the basis of reactive programming lie abstractions and primitives that conceptualise these inputs and the operations you can perform, as discussed in the next sections.
+It started with sequential programs, where code runs line by line. Though, living after the internet bubble it is hard to imagine a world without JavaScript callbacks. Callbacks solve the problem that not every resource is available immediately, and you do not want to block and wait for it to be available. In the callback you define the code that runs when the resource is ready. But a lot of resources are not available 'immediately' in terms of CPU cycles. So nowadays most web applications look like a pyramid of callbacks underwater. And servers are getting the hang of it too, with NodeJS. The so called <a href="http://callbackhell.com/">callback hell</a>:
+
+````javascript
+getData(function(a){
+    getMoreData(a, function(b){
+        getMoreData(b, function(c){
+            getMoreData(c, function(d){
+                getMoreData(d, function(e){
+                    ...
+                });
+            });
+        });
+    });
+});
+````
+
+Several techniques are available to prevent this pyramid of callbacks. One technique is using Asynchronous Programming. In C# and Hack the <code>async</code> and <code>await</code> keywords are available for this, and ES6 is getting these features too. These keywords can change the order of execution, and allow parallel awaiting of resources. Consider changing above code to this:
+
+````csharp
+var a = await getData();
+var b = await getData(a);
+var c = await getData(b);
+var d = await getData(c);
+var e = await getData(d);
+````
+
+This makes the flow more clear immediately: much less syntax getting in the way of comprehending the behaviour.
+
+Now consider the case where you do not have a fixed set of resources, but a possibly infinite amount of future events. This sounds a far away problem, but it happens every day: even mouse moves and clicks in the browser are a source for these events. Just like for slow resources developers needed a way to handle these future values.
+
+With reactive programming you can write more comprehensible code, because you model the data-flow instead of passing the data around manually. You describe what happens when new parts of data arrive, define through which transformations the data should go, and which output gets generated in response to the input. At the basis of reactive programming lie abstractions and primitives that conceptualise these inputs and the operations you can perform, as discussed in the next sections.
 
 ## Re•ac•tive Pro•gram•ming
 
@@ -61,13 +92,17 @@ We will go into the specifics of some implementations later in this article, but
 In the following sections we will use the term *stream* when we refer to input in general, without referring to any specific data type. We will use a capital when referring to specific types.
 
 ## Transformations / operators
-Every input received triggers the reactive program. Next, the program can act on this data, possibly transforming the data and/or produce some output. A multitude of transformations are available in each library. The more generic transformations can be used as building blocks for more advanced ones. We will discuss some of the basic and some of the advanced transformations.
+Every input received will trigger the reactive program. Next, the program can act on this data, possibly transforming the data and/or produce some output. A multitude of transformations are available in each library. The more generic transformations can be used as building blocks for more advanced ones. We will discuss some of the basic and some of the advanced transformations.
 
-Just like functional languages let you transform arrays the reactive libraries let us transform streams with a function like *map*. As known from arrays this transformation applies a given function to each element in the stream, producing a stream equal in timing but with transformed elements. To eliminate some elements the *filter* operator can be used.
+The reactive libraries let us transform streams with a function like *map*, just like functional languages let you transform arrays. As known from arrays this transformation applies a given function to each element in the stream, producing a stream equal in timing but with transformed elements. To eliminate some elements the *filter* operator can be used.
 
-A feature from the Haskell-like origins is the support for *flatMap*, an operation that's takes a function which produces a new stream for each incoming element and combines the many new streams in a single resulting stream. The flatMap operator is part of the requirements for a type to be a Monad, and not all libraries have a data type which is a Monad. For example Elm lacks flatMap as it Signals explicitly are no Monads but Applicative Functors. More on this in section X.
+| map | filter | flatMap |
+| --- | ------ | ------- |
+| ![map](http://reactivex.io/documentation/operators/images/map.png) | ![filter](http://reactivex.io/documentation/operators/images/filter.png) | ![flatMap](http://reactivex.io/documentation/operators/images/flatMap.png) |
 
-Beside element transformations also time manipulating operators are available. The name of methods like *delay* and *throttle* speak for themselves. More of such transformations exists, depending on the library we use.
+A feature from the Haskell-like origins is the support for *flatMap*, an operation that's takes a function which produces a new stream for each incoming element and combines the many new streams in a single resulting stream. The flatMap operator is part of the requirements for a type to be a Monad, and not all libraries have a data type which is a Monad. For example Elm initially lacked flatMap as it Signals explicitly were no Monads but Applicative Functors. More on this in the section about [Elm](#elm).
+
+Beside element transformations, many other operators are available. For example time manipulating operators. The name of methods like *delay* and *throttle* speak for themselves. Other operators allow us to combine or switch between streams. More or less of such transformations exists, depending on the library we use.
 
 ## Evaluation model
 Each reactive programming language or framework has an evaluation model, responsible for propagating changes. This evaluation model of a reactive system is mostly hidden to the user, but it influences the performance and the capabilities that the system offers. Generally two paradigms exist: push and pull. In this section we explains both their advantages and disadvantages, and use cases.
@@ -78,7 +113,7 @@ When propagating changes in a reactive system, either the source or dependants c
 
 Push based reactive systems propagate changes to subscribers as soon as new data arrives. It is data-driven. To achieve this, such a system lets subscribers register with the source or observable to receive updates first. The source then remembers who is subscribed. Later, when a source changes, it pushes an update to all dependants. There is nothing the dependant can do to stop this, except unregistering.
 
-This conforms to the original definition of Reactive Programming: the dependant operates at the speed of the environment providing new data. This ensures the fastest delivery possible: whenever new data is available it reaches the destination. 
+This conforms to the original definition of Reactive Programming: the dependant operates at the speed of the environment providing new data. This ensures the fastest delivery possible: whenever new data is available it reaches the destination.
 
 A disadvantage is that the programmer needs to make sure that processing the change is fast, virtually instant. Luckily frameworks generally implement ways to de-duplicate, buffer or drop superfluous changes. Push based systems work best when changes have a discrete character, for example clicks or tweets, and there is no sample rate that is seriously limiting the main effect. Push based is thus more suitable for updating a database or application UIs than for example the game loop of a 60fps 3d shooter game.
 
@@ -89,9 +124,9 @@ Pull based systems propagate changes whenever the subscriber requires new data. 
 It can be argued that pull based systems are not 'reactive' in the sense of the original definition: the subscriber is in charge of requesting new data, so it is possible that the system does not operate at the speed of the environment. Depending on the use case this can be a good thing, but in most use cases for Reactive Programming push-based systems theoretically offer better performance.
 
 ## Syntax
-Some languages require more verbose syntax than others. Rx and Reactive Streams both use a comparable syntax: factory methods are available in the form of static methods and to apply operations on the streams several class methods are available. This often leads to the method chaining pattern):
+Some languages require more verbose syntax than others. Rx and Reactive Streams both use a comparable syntax: factory methods are available in the form of static methods and to apply operations on the streams several class methods are available. This often leads to the method chaining pattern:
 
-````
+````javascript
 factoryMethod(value)
   .map(f)
   .scan(g)
@@ -102,7 +137,7 @@ Other libraries, especially in dynamic languages, have a more implicit syntax.
 
 You can for example write the following code in Meteor which will always show the current amount of users, even when a new user is added or removed in another session:
 
-````
+````javascript
 Template.helpers.twiceTheUserCount = () => Users.count() * 2
 Count: {{ twiceTheUserCount }}
 ````
@@ -116,7 +151,7 @@ In both evaluation models either explicitly or implicitly a dependency graph is 
 In the following Rx example three streams are defined. By subscribing to the last stream called `joined` the system is started. This stream is explicitly defined by using the combineLatest operator, wiring up dependencies.
 
 [graph](modules/deps-rx/index.html)
-````
+````javascript
 const numbers = Rx.Observable.interval(1000);
 const alphabet = Rx.Observable.interval(500).map(i => i % 26 + 97);
 const joined = Rx.Observable.combineLatest(alphabet, numbers, (s, n) => s + n);
@@ -256,7 +291,7 @@ For Event's the Monoid and Monad instances are defined by Elliot. The Monoid ins
 
 # Examples on Advanced Topics
 
-- discuss hot cold here, why it is not so important, but why so confusing?
+- [x] discuss hot cold here, why it is not so important, but why so confusing?
 - example of reactive Excel sheet?
 	- extend functions to have previous value option
 	- delay operators
@@ -267,6 +302,41 @@ For Event's the Monoid and Monad instances are defined by Elliot. The Monoid ins
 - Sensor Fusion example from course but then using Rx
 - traffic information agent : changing traffic causes changing departure time / arrival time
 - weather agent: rain predicted causes calendar to change
+
+## Hot or cold
+A common source of confusion for Rx is whether Observable are either "hot" or "cold".
+The definition, as by the creators of the library, depends on the whether the Observable is doing something "on-demand" when you subscribe, or if it will produce values regardless you subscribing.
+
+Sometimes Observables emit values whether you listen to them or not and sometimes they only start when you subscribe. Sometimes you will get "fresh" values, and sometimes you are sharing values with other subscribers.
+
+Considering the mouse example: unrelated you listening to changes you can change the mouse its position by hand. Multiple Observables listening to this mouse will get the same events, from when they start listening onwards. A cold Observable is for example a web server request which is wrapped in an Observable: subscribing twice might send the request twice.
+
+| Hot | Cold |
+| :---: | :----: |
+| emits events whether you are ready or not | starts emitting when you subscribe to it<br>(often at a controlled rate) |
+| examples | examples |
+| - mouse & keyboard events <br>- system events <br>- stock prices | database query <br>- web service request <br>- reading file |
+| flow control | flow control & backpressure |
+
+source: [Ben Christensen](http://www.slideshare.net/InfoQ/reactive-programming-with-rx)
+
+It is important to know which Observable you are subscribing to if you can not handle the input at the rate it will be provided. If you are slower you can not be reactive anymore: the CPU will be working hard and instead of operating at the speed of the environment, your own CPU is now determining the speed of the system. When you know that you will get to much data you can try to reduce the amount of data, with several operators. Escpecially `sample` and `debounce` are helpful, they sample the input. [Sample](http://reactivex.io/documentation/operators/sample.html) selects an event during a time window, while [debounce](http://reactivex.io/documentation/operators/debounce.html) waits at least a time window until emitting the latest value.
+
+It happens that one is unsure whether the Observable is hot or cold, consider the following example:
+
+````
+def coldObservable = Observable.interval(100).map("0123456789abcdef".get(_))
+def hotObservable = Observable.interval(100).map("0123456789abcdef".get(_))
+
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Hot or cold? <a href="http://t.co/MT4H5UbOQs">pic.twitter.com/MT4H5UbOQs</a></p>&mdash; Erik Meijer (@headinthebox) <a href="https://twitter.com/headinthebox/status/616007686958682113">June 30, 2015</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Hot or cold? <a href="http://t.co/Z8tWR6koMR">pic.twitter.com/Z8tWR6koMR</a></p>&mdash; Erik Meijer (@headinthebox) <a href="https://twitter.com/headinthebox/status/616007915112017920">June 30, 2015</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+For in-dept discussion about 'hot' and 'cold' from the creators of Rx
+see [this video](https://channel9.msdn.com/Blogs/J.Van.Gogh/Rx-API-in-depth-Hot-and-Cold-observables)
+or [this blogpost](http://leecampbell.blogspot.nl/2010/08/rx-part-7-hot-and-cold-observables.html)
 
 ## Difficulties with implicit syntax
 To demonstrate that dynamic languages with implicit reactivity has a disadvantage too: you loose precise control. Lets demonstrate this. In the following snippet we setup 2 reactive variables, and with Tracker.autorun we register a dependency. When using Meteor normally, you would register the dependency in the template setup method. That function is already wrapped in Tracker.autorun, making the snippet fully implicit.
@@ -342,6 +412,9 @@ Examples:
 Ideas:
 - use bigfoot.js for footnotes
 
+# What is applicative/monad/functor?
+http://www.russbishop.net/monoids-monads-and-functor
+
 Inhoud:
 - hot vs cold like https://medium.com/@benlesh/hot-vs-cold-observables-f8094ed53339
 - above fout, het is:
@@ -355,4 +428,25 @@ Inhoud:
 > Reactive programs continuously interact with their environment,
 > at a speed determined by the environment instead of the program itself.
 > <br>- Gérard Berry, 1989
+
+
+Lightbend man van Akka Streams naar eigen implementatie SWAVE DSL swave.io/scaladays/2016
+
 -->
+
+
+Rx debugging:
+
+ - values
+ - threading
+
+Existing dingen?:
+
+- Scala IDE met reactive debugging?
+- Reactive Inspector for Eclipse
+- Scala Days: monitoring reactive applications (zipkin style? distributed tracing)
+
+
+-------
+
+<small>by Herman Banken</small>
