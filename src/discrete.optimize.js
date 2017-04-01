@@ -3,19 +3,20 @@
 var svg, path, xas, yas, ytext, xtext;
 function discreteOptimize(selector) {
   var margin = {top: 10, right: 20, bottom: 40, left: 35},
-    width = $(selector).parent().find("p").width()  - margin.left - margin.right,
+    width = $(selector).closest("p").width() - margin.left - margin.right,
     height = 200 - margin.top - margin.bottom;
 
-  var parse = d3.time.format("%b %Y").parse;
+console.log(width, height)
+  var parse = d3.timeFormat("%b %Y").parse;
 
-  var x = d3.scale.linear().domain([0, 1]).range([0, width]);
-  var y = d3.scale.linear().domain([-1, 1]).range([height, 0]);
-  var xAxis = d3.svg.axis().scale(x).orient("bottom");
-  var yAxis = d3.svg.axis().scale(y).orient("left");
+  var x = d3.scaleLinear().domain([0, 1]).range([0, width]);
+  var y = d3.scaleLinear().domain([-1, 1]).range([height, 0]);
+  var xAxis = d3.axisBottom(x);
+  var yAxis = d3.axisLeft(y);
 
   // A line generator, for the dark stroke.
-  var line = d3.svg.line()
-    .interpolate("monotone")
+  var line = d3.line()
+    .curve(d3.curveLinear)
     .x(function(d,i) { return x(d.x); })
     .y(function(d,i) { return y(d.y); });
 
@@ -96,7 +97,7 @@ function discreteOptimize(selector) {
     else if(i/points*2*Math.PI > Math.PI * 1.5)
       return 1;
     else
-      return -Math.sin(i/points*2*Math.PI);    
+      return -Math.sin(i/points*2*Math.PI);
   }
 
   function sinusdata(){

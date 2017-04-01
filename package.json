@@ -13,9 +13,17 @@
   ],
   "repository": {},
   "dependencies": {
+    "@types/showdown": "^1.4.32",
     "d3": "*",
+    "d3-color": "^1.0.3",
+    "d3-interpolate": "^1.1.4",
+    "d3-scale": "^1.0.5",
+    "d3-shape": "^1.0.6",
     "jquery": "^2.1.4",
-    "rx": "^4.0.6"
+    "rx": "^4.1.0",
+    "showdown": "^1.6.4",
+    "snabbdom": "^0.6.7",
+    "snabbdom-virtualize": "^0.6.0"
   },
   "devDependencies": {
     "babelify": "~6.1.2",
@@ -26,7 +34,7 @@
     "gulp-typescript": "^2.9.2",
     "gulp-uglify": "^1.2.0",
     "merge2": "^0.3.5",
-		"typescript": "^1.6.2",
+    "typescript": "^1.6.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   }

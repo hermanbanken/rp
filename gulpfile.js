@@ -43,8 +43,8 @@ gulp.task('browserify', () => {
 gulp.task('copy', () => {
 	return merge([
 		gulp.src([
-			'bower_components/jquery/dist/jquery.min.js', 
-			'bower_components/prism/prism.js', 
+			'bower_components/jquery/dist/jquery.min.js',
+			'bower_components/prism/prism.js',
 			'bower_components/d3/d3.min.js',
 		])
 			.pipe(gulp.dest('dist/libs/')),

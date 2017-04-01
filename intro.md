@@ -22,7 +22,7 @@ Shifting away from traditional batch based programs and towards interactive appl
 
 It started with sequential programs, where code runs line by line. Though, living after the internet bubble it is hard to imagine a world without JavaScript callbacks. Callbacks solve the problem that not every resource is available immediately, and you do not want to block and wait for it to be available. In the callback you define the code that runs when the resource is ready. But a lot of resources are not available 'immediately' in terms of CPU cycles. So nowadays most web applications look like a pyramid of callbacks underwater. And servers are getting the hang of it too, with NodeJS. The so called <a href="http://callbackhell.com/">callback hell</a>:
 
-````javascript
+```javascript
 getData(function(a){
     getMoreData(a, function(b){
         getMoreData(b, function(c){
@@ -34,17 +34,17 @@ getData(function(a){
         });
     });
 });
-````
+```
 
 Several techniques are available to prevent this pyramid of callbacks. One technique is using Asynchronous Programming. In C# and Hack the <code>async</code> and <code>await</code> keywords are available for this, and ES6 is getting these features too. These keywords can change the order of execution, and allow parallel awaiting of resources. Consider changing above code to this:
 
-````csharp
+```csharp
 var a = await getData();
 var b = await getData(a);
 var c = await getData(b);
 var d = await getData(c);
 var e = await getData(d);
-````
+```
 
 This makes the flow more clear immediately: much less syntax getting in the way of comprehending the behaviour.
 
@@ -126,21 +126,21 @@ It can be argued that pull based systems are not 'reactive' in the sense of the 
 ## Syntax
 Some languages require more verbose syntax than others. Rx and Reactive Streams both use a comparable syntax: factory methods are available in the form of static methods and to apply operations on the streams several class methods are available. This often leads to the method chaining pattern:
 
-````javascript
+```javascript
 factoryMethod(value)
   .map(f)
   .scan(g)
   .subscribe(v => console.log(v));
-````
+```
 
 Other libraries, especially in dynamic languages, have a more implicit syntax.
 
 You can for example write the following code in Meteor which will always show the current amount of users, even when a new user is added or removed in another session:
 
-````javascript
+```javascript
 Template.helpers.twiceTheUserCount = () => Users.count() * 2
 Count: {{ twiceTheUserCount }}
-````
+```
 
 In this example the count is a stream, but the operation is done on a single stream element. The code `Users.count() * 2` is a new stream, because a dependency is registered when the first stream is evaluated. Meteor makes use of the dynamic nature of the language to detect whether a function is a normal function or a reactive one, which needs to be re-evaluated. A limitation of this syntax is losing control over the stream as a collection. Streams are not first class, merely just re-evaluated functions. This is ideal for data-binding, but somewhat limiting for more advanced usage. Consider for example that other libraries allow you to accumulate over previous values, or disconnect a stream when we are not interested anymore. To show why this does not work, see the example in the section [Difficulties with implicit syntax](#Difficulties-with-implicit-syntax).
 
@@ -151,12 +151,12 @@ In both evaluation models either explicitly or implicitly a dependency graph is 
 In the following Rx example three streams are defined. By subscribing to the last stream called `joined` the system is started. This stream is explicitly defined by using the combineLatest operator, wiring up dependencies.
 
 [graph](modules/deps-rx/index.html)
-````javascript
+```javascript
 const numbers = Rx.Observable.interval(1000);
 const alphabet = Rx.Observable.interval(500).map(i => i % 26 + 97);
 const joined = Rx.Observable.combineLatest(alphabet, numbers, (s, n) => s + n);
 join.subscribe(v => console.log(v));
-````
+```
 
 In contrast, some other languages construct the dependency graph automatically by registering dependencies upon execution. An example of this is Tracker, Meteor's reactivity module. In Meteor by wrapping functions in `Tracker.autorun`...
 
@@ -261,11 +261,11 @@ Signal α = Time → α
 
 The isomorphism holds two ways, when viewed from a more practical viewpoint. Continuous values, behaviours, when modeled in the computer are really discrete values or samples, so Behaviours are represented as very fast firing Events. There is an actual maximum frequency at which the data is needed, for at least two reasons: first the input is received only at the sample speed of the sensors and second the system can only display the results to the screen at a maximum of the refresh rate of the monitor or a given output rate to other outputs.
 
--> put first graph here
+[graph #continuous-discrete]
 
 Depending on how the behaviour is used, this even allows for some optimization: by not firing an event when the sampled value did not change, we can prevent unnecessary recomputations. When further computations count or average the values this can not be done of course, so in most languages this is an explicit operation, often called `distinct`.
 
--> put second graph here
+[graph #discrete-optimize]
 
 Some restrictions on this isomorphism have to be regarded however, as one can express behaviours that are hard or impossible to convert to deterministic events. Sometimes these difficulties are solved by increasing the sampling rate, like with integrals. Languages like Fran allow for behaviours like `integrate` which apply mathematical integration to a function. These behaviours can be approximated with sampling rates going to zero. Examples of impossibly convertible behaviours are `sharp`, Zeno's paradox, and `unpredictable`. These examples share the feature that frequency and sampling rate play an important role which is hard to express semantically, and thus are described as non-terminating or erroring by Wan et al.
 
@@ -275,15 +275,14 @@ The semantics of Events and Behaviours are well defined in Elliots paper [Push-P
 
 For both Behaviour and Event the Functor instance is trivial: a function is applied each value, leaving the time value intact. The Applicative Functor instances are less trivial. For a function-valued and one or more argument-valued Behaviours the Applicative Functor <*>-function samples functions and arguments at time t. The resulting Behaviour consists of the application of those inputs.
 
-<pre>
-instance Applicative Behaviour where
+<pre><code class="haskell">instance Applicative Behaviour where
   at (pure a)
       = pure a
       = const a
-  at (b<sub>f</sub> <*> b<sub>x</sub>)
-      = at b<sub>f</sub> <*> at b<sub>x</sub>
-      = λt ⟶ (b<sub>f</sub> `at` t) (b<sub>x</sub> `at` t)
-</pre>
+  at (b_f <*> b_x)
+      = at b_f <*> at b_x
+      = λt ⟶ (b_f `at` t) (b_x `at` t)
+</code></pre>
 
 For Event the Applicative Functor needs to handle two Event's which not necessarily have equal (amount of) values of t. Therefore all possible pairs constructed from values of the two Event's, yielding m + n different *time clusters* of values, for we need to wait for both time values t<sub>1</sub> and t<sub>2</sub>, effectively taking the maximum t.
 
@@ -327,9 +326,10 @@ It is important to know which Observable you are subscribing to if you can not h
 
 It happens that one is unsure whether the Observable is hot or cold, consider the following example:
 
-````
+```
 def coldObservable = Observable.interval(100).map("0123456789abcdef".get(_))
 def hotObservable = Observable.interval(100).map("0123456789abcdef".get(_))
+```
 
 <blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Hot or cold? <a href="http://t.co/MT4H5UbOQs">pic.twitter.com/MT4H5UbOQs</a></p>&mdash; Erik Meijer (@headinthebox) <a href="https://twitter.com/headinthebox/status/616007686958682113">June 30, 2015</a></blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
@@ -346,7 +346,7 @@ To demonstrate that dynamic languages with implicit reactivity has a disadvantag
 
 [jsbin](https://jsbin.com/gist/1faf808f8a9183d6a5c1384376d850e2?js,console)
 
-````
+```
 var energyUse = ReactiveVar(0);
 var energyAccumulate = ReactiveVar(0);
 
@@ -369,24 +369,24 @@ console.assert(energyAccumulate.get() == 0)
 
 // Initial autorun + 1 combined update
 setTimeout(() => console.assert(energyAccumulate.get() == 34), 100)
-````
+```
 
 After running the snippet the energyAccumulate is still 0. Tracker immediately executes the supplied function, but does not trigger the function again until the next process tick or event loop. The final answer is 34, which is clearly wrong. To remedy this we need to schedule the updates separately:
 
 [jsbin](http://jsbin.com/gist/de3a027d26b4628b8498bc7a95f85ab2?js,console")
 
-````
+```
 setTimeout(() => energyUse.set(3), 100);
 setTimeout(() => energyUse.set(5), 200);
 setTimeout(() => energyUse.set(34), 300);
 setTimeout(() => console.assert(energyAccumulate.get() == 42, "Initial autorun + 3 updates"), 400)
-````
+```
 
 But this is still not reliable as Tracker might not run in-between those timeouts. We simply do not have any control like we would have with an explicit language. Consider the following Rx example:
 
 [jsbin](http://jsbin.com/gist/af547c0561d1f01cafe58931544b2ec9?js,console")
 
-````
+```
 var energyUse = new Rx.ReplaySubject(1);
 var energyAccumulate = energyUse.scan((acc, value) => acc+value, 0);
 energyAccumulate.subscribe(c => console.log(c));
@@ -398,7 +398,7 @@ userCount.onNext(5));
 userCount.onNext(34);
 // prints 42
 
-````
+```
 In this example you have full control of how the stream is handled. You will not miss messages (unless you choose to drop them).
 
 ## Glitches
