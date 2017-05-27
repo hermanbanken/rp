@@ -1,0 +1,41 @@
+- Cycle.JS streams IO
+  hoe zou dat zijn?
+
+- paper Lars Willems over Excel met history niet gevonden
+	- bedoelde je "Stream Processing with a Spreadsheet" 
+	> Active Sheets 
+	van Mandana Vaziri, Olivier Tardieu, Rodric Rabbah, Philippe Suter, and Martin Hirzel
+
+
+JS with Monads
+```
+Promise.prototype.bind = Promise.prototype.then;
+
+var result = doM(function*() {
+    var value = yield Promise.resolve(5);
+    var value2 = yield Promise.resolve(11);
+    return value + value2;
+}());
+
+result.then(print);
+```
+
+CycleJS monadic IO:
+```
+Cycle.run(main);
+
+function main(sources) {
+    
+    var user = yield loginForm();
+
+
+}
+```
+
+- state is globale state
+- updates op de state, imperatief
+- State monad
+- double buffering in GPU's zelfde als virtual DOM
+- 10 jaar achter
+
+- Lars Willems studeert nog
