@@ -1,0 +1,12 @@
+{
+  "name": "rp-blog",
+  "version": "1.0.0",
+  "description": "A developers handbook to RP",
+  "main": "index.js",
+  "author": "Herman Banken <hermanbanken@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "prestart": "if which rbenv > /dev/null; then eval \"$(rbenv init - && rbenv rehash)\"; fi",
+    "start": "bundle exec jekyll serve"
+  }
+}
