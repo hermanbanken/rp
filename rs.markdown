@@ -172,3 +172,9 @@ Source.fromPublisher(queue).map(_.message).runWith(Sink.fromSubscriber(exchange)
 ```
 
 The last line shows how the `queue` Producer from Rabbit is converted into an Akka Source and further processed (`map`) until the data leaves the realm of Akka through the Sink created from the Rabbit `exchange` Subscriber.
+
+## All together
+As discussed, the RS library makes it possible to wire flows from Rx, Akka and Reactor together. [This example](https://github.com/rkuhn/ReactiveStreamsInterop/blob/7124906fb50f9a91cee4e8d58c00853898eed239/src/main/scala/com/rolandkuhn/rsinterop/ScalaMain.scala) shows how to create a Rx => Akka => Reactor stream and how use use this from the Ratpack webapplicaton framework.
+
+<script src="http://gist-it.appspot.com/http://github.com/rkuhn/ReactiveStreamsInterop/blob/7124906fb50f9a91cee4e8d58c00853898eed239/src/main/scala/com/rolandkuhn/rsinterop/ScalaMain.scala"></script>
+
