@@ -57,6 +57,7 @@ function continuousDiscrete(element) {
   path = path || svg.append("path")
   path
     .datum(sinusdata)
+    .attr("fill", "none")
     .attr("class", "line")
     .attr("d", line);
 
