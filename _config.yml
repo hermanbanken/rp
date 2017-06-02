@@ -32,5 +32,5 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - static
-  - workspace
+  - workspace/node_modules
 github: [metadata]

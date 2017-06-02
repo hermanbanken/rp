@@ -33,11 +33,11 @@ The isomorphism holds two ways, when viewed from a more practical viewpoint. Con
 - the input is received only at the sample speed of the sensors and
 - the system can only display the results to the screen at a maximum of the refresh rate of the monitor or a given output rate to other outputs.
 
--> put first graph here
+<script src="workspace/frp-graphs/continuous.discrete.js"></script>
 
 Depending on how the behavior is used, this even allows for some optimization: by not firing an event when the sampled value did not change, we can prevent unnecessary recomputations. When further computations count or average the values this can not be done of course, so in most languages this is an explicit operation, often called `distinct`.
 
--> put second graph here
+<script src="workspace/frp-graphs/discrete.optimize.js"></script>
 
 Some restrictions on this isomorphism have to be regarded however, as one can express behaviors that are hard or impossible to convert to deterministic events. Sometimes these difficulties are solved by increasing the sampling rate, like with integrals. Languages like Fran allow for behaviors like `integrate` which apply mathematical integration to a function. These behaviors can be approximated with sampling rates going to zero. Examples of impossibly convertible behaviors are `sharp`, [Zeno's paradox](https://en.wikipedia.org/wiki/Zeno%27s_paradoxes), and `unpredictable`. These examples share the feature that frequency and sampling rate play an important role which is hard to express semantically, and thus are described as non-terminating or erroring by [Wan et al.]()
 
