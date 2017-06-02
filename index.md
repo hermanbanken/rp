@@ -32,7 +32,7 @@ Key to reactive programming is that all that input might not come at once, but r
 
 While you could handle the use cases for reactive programming in other ways like with callbacks or promises, the different kinds of reactive programming all try to make your life as a developer easier, with features that require you to write less code and/or more comprehensible code than what would otherwise be required.
 
-## Ancient history: Esterel
+## Ancient history
 At least in terms of computer science the term reactive programming has been around for a very long time: since the 1980s. Gérard Berry and his team created Esterel, and wrote what he thinks a reactive program is:
 
 > Reactive programs continuously interact with their environment, at a speed determined by the environment instead of the program itself. 
