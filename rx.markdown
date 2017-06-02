@@ -16,7 +16,7 @@ Rx is build to fill the gap in the following [table](http://reactivex.io/intro.h
 | synchronous   |	`T getData()`         |	`Iterable<T> getData()`  	|
 | asynchronous  |	`Future<T> getData()` |	`?`												|
 
-It deals with multiple items in an asynchronous fashion, using the `Observable`-type, filling the gap in the table with `Observable<T> getData()` If you have ever worked with Futures/Promises or with modern collections (with map, filter, etc.) you will see some common concepts in Observables. Basically Rx is two things:
+It deals with multiple items in an asynchronous fashion, using the `Observable`-type, filling the gap in the table with `Observable<T> getData()`. If you have ever worked with Futures/Promises or with modern collections (with map, filter, etc.) you will see some common concepts in Observables. Basically Rx is two things:
 
 - the Observable/Observer interfaces, the dual of Iterable/Iterator
 - a very powerful API built on top
@@ -133,8 +133,10 @@ Rx.Observable.websocket("ws://echo.websocket.org/chatserver")
 So far we have seen nothing that mere callbacks could not do. Lets look at part of the API to get a grasp of the advantages of using Rx. Suppose we are writing an user interface which lets you search for movies, how would this look?
 
 ```javascript
-<input type="text" placeholder="Type movie name here" />
-<div id="results"></div>
+<div>
+  <input type="text" placeholder="Type movie name here" />
+  <div id="results"></div>
+</div>
 
 function render(res) {
   let titles = res.results
@@ -156,7 +158,7 @@ Rx.Observable.fromEvent(document.querySelector("input"), "keyup")
   .subscribe(render)
 ```
 
-Besides some HTML and a render function there is a piece of code starting with Observable and then a chain of method calls. This is how we apply multiple transformations on the Observable in sequence: by chaining method calls. The first operator `fromEvent` detects keyup events on the input field. Then we `map` to extract the value of the field. Next we filter to only keep the queries that are non-empty. Note that this map and filter operations looks just like a normal `Array.map` and `Array.filter`, but instead it executes every time you type a new letter. Then there is a operator with the weird name `switchMap`. Actually the name is not so weird, but we'll go into that later. The main thing `switchMap` does is making sure that for every query we run the search function and the results are combined in one stream and continue on. At last we subscribe with our render function which will display the results. 
+Besides some HTML and a render function there is a piece of code starting with `Rx.Observable` and then a chain of method calls. This is how we apply multiple transformations on the Observable in sequence: by chaining method calls. The first operator `fromEvent` detects keyup events on the input field. Then we `map` to extract the value of the field. Next we filter to only keep the queries that are non-empty. Note that this map and filter operations looks just like a normal `Array.map` and `Array.filter`, but instead it executes every time you type a new letter. Then there is a operator with the weird name `switchMap`. Actually the name is not so weird, but we'll go into that later. The main thing `switchMap` does is making sure that for every query we run the search function and the results are combined in one stream and continue on. At last we subscribe with our render function which will display the results. 
 
 [Try this example at JsFiddle](https://jsfiddle.net/hermanb/ewnb4825/).
 
@@ -206,6 +208,24 @@ But when not using Rx this adds another level of bookkeeping, which becomes hard
 
 ### Subscribing
 
- the data out, and creating Observers can be quite annoying so Rx
+You can not simply `get()` the data from an Observable, instead you define a callback that is called _every time_ some event occurs. Above samples already contained `.subscribe(render)` where render is the callback function. You can call subscribe with individual functions for each type of event (remember: _next_, _error_ or _complete_), with only a subset or with an Observer. The subscribe method makes sure that if you pass in anything other than a Observer interface, the thing is wrapped and complemented with no-op functions. Basically this all works:
+
+```javascript
+observable.subscribe(next => {}, error => {}, () => {})
+observable.subscribe(next => {}, error => {})
+observable.subscribe(next => {})
+observable.subscribe({
+  next: (next) => {},
+  error: (error) => {},
+  complete: () => {},
+})
+```
+
+If you for some reason want all values in the Observable, then you need to wait for all events to arrive. Luckily there is an operator for this `toArray()` which will send 1 single next event containing an array (and a complete) after it receives a complete. 
+
+```javascript
+observable.toArray().subscribe(array => {})
+```
 
 ## Examples
+Now that you know the basics of Rx, lets dive into some examples.

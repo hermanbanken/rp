@@ -16,9 +16,9 @@ First, what the heck is _Reactive_? At least these 3 things:
 Since you're here you're probably interested in the third item. So, what is Reactive Programming? Depending on who you ask it can be:
 
 - [Functional Reactive Programming](frp.html) or FRP: Fran, Elm < 0.17
-- [Reactive Extensions](rx.html), just like some `<your language of choice here>` collection API, but for asynchronous collections
-- [Reactive Streams](rs.html), sort of like ReactiveX, but not fully reactive anymore
-- [A data binding framework](binding.html): automatically update UI's as data changes, e.g. Meteor, React, etc.
+- [Reactive Extensions](rx.html) (also called ReactiveX or Rx), just like some `<your language of choice here>` collection API, but for asynchronous streams
+- [Reactive Streams](rs.html), sort of like Rx, but trading reactivity for backpressure
+- [Data binding frameworks](binding.html): automatically update UI's as data changes, e.g. Meteor, React, etc.
 
 In this blog I will try to give you some background on the different kinds of Reactive Programming, and provide you with samples to understand the concept and the use cases for each of the above kinds of Reactive Programming. You can read this as a whole, or jump straight to the specific section you're interested in. My favorite kind is Reactive Extensions - the best tool in my programming toolbox - so if you are looking for my recommendation, read that section.
 

@@ -7,4 +7,6 @@ weight: 6
 ---
 
 # Shared ideas
+Having reviewed several kinds of Reactive Programming, we now look at some concepts that are shared among several implementations and look for similarities and differences.
+
 

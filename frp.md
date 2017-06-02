@@ -39,7 +39,7 @@ Depending on how the behavior is used, this even allows for some optimization: b
 
 -> put second graph here
 
-Some restrictions on this isomorphism have to be regarded however, as one can express behaviors that are hard or impossible to convert to deterministic events. Sometimes these difficulties are solved by increasing the sampling rate, like with integrals. Languages like Fran allow for behaviors like `integrate` which apply mathematical integration to a function. These behaviors can be approximated with sampling rates going to zero. Examples of impossibly convertible behaviors are `sharp`, Zeno's paradox, and `unpredictable`. These examples share the feature that frequency and sampling rate play an important role which is hard to express semantically, and thus are described as non-terminating or erroring by [Wan et al.]()
+Some restrictions on this isomorphism have to be regarded however, as one can express behaviors that are hard or impossible to convert to deterministic events. Sometimes these difficulties are solved by increasing the sampling rate, like with integrals. Languages like Fran allow for behaviors like `integrate` which apply mathematical integration to a function. These behaviors can be approximated with sampling rates going to zero. Examples of impossibly convertible behaviors are `sharp`, [Zeno's paradox](https://en.wikipedia.org/wiki/Zeno%27s_paradoxes), and `unpredictable`. These examples share the feature that frequency and sampling rate play an important role which is hard to express semantically, and thus are described as non-terminating or erroring by [Wan et al.]()
 
 ## Examples
 
