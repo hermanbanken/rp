@@ -15,8 +15,8 @@ import Dep from "./dep"
 				return sum
 			})
 
-			expect(a.depending).to.deep.eq([c])
-			expect(b.depending).to.deep.eq([c])
+			expect((a as any).depending).to.deep.eq([c])
+			expect((b as any).depending).to.deep.eq([c])
 
 			a.value = 2
 
@@ -42,7 +42,7 @@ import Dep from "./dep"
 				console.log(chain.value)
 			})
 
-			deps.forEach(d => expect(d.depending).to.have.lengthOf(1))
+			deps.forEach(d => expect((d as any).depending).to.have.lengthOf(1))
 
 			expect((chain as any).current).to.eq(100)
 			a.value = 2
