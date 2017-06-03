@@ -69,10 +69,10 @@ Originally Rx did not implement RS. In version 1 backpressure was retrofitted in
 Using conversion methods we can convert Observables (and equally Singles, Completables and Maybes) to RS Publishers:
 
 ```java
-// To Observable, from RS
+// From RS, to Observable
 Flowable.just(1).toObservable()
 
-// To RS world, from Observable
+// From Observable to RS
 Observable.just(1).toFlowable(BackpressureStrategy.DROP)
 Single.just(1).toFlowable() // no strategy required
 ```
