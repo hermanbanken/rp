@@ -24,6 +24,7 @@ github_username:  hermanbanken
 repository: hermanbanken/rp
 
 # Build settings
+baseurl: /rp
 markdown: kramdown
 theme: jekyll-theme-minimal
 gems:
