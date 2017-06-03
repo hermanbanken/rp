@@ -6,40 +6,48 @@ weight: 1
 
 # Functional Reactive Programming
 
-One of the first times Reactive Programming was written in capitals was when Conal Elliot wrote his paper about _Functional_ Reactive Programming. Elliot uses functional rather than imperative style for their Reactive Animation system Fran [Elliot, 1997](http://www.eecs.northwestern.edu/~robby/courses/395-495-2009-winter/fran.pdf). Being the first FRP framework, Fran is often referred to as classic functional reactive programming (Classic FRP). It provided a basis for future research into (functional) reactive programming by creating the notion of events and behaviors.
+In 1997 Conal Elliot created a Functional Reactive Animation system ([Fran]((http://www.eecs.northwestern.edu/~robby/courses/395-495-2009-winter/fran.pdf))) and defined Functional Reactive Programming. While Fran was used only for animation, the core building blocks (_Events_ and _Behavior_) outlived Fran and are very relevant for Reactive Programming in general.
 
-**Warning**: FRP is very closely related to Haskell and this section contains some notation that might look unfamiliar. If you want something practical to use in your next web/mobile project, skip this section and head to [Reactive Extensions](rx.html).
+## Building blocks
 
-## Abstractions
+FRP defines two reactive data types, _Events_ and _Behaviors_. Events represent a sequence of discrete timestamped values, for example mouse clicks. They represent all (past and future) occurrences of some event at a specific times. They are discrete: you can count them.
 
-In FRP two reactive data types existed: Events and Behaviors. Events represent a sequence of discrete timestamped values, for example mouse clicks. 
+`Event α = [(Time, α)]`
 
-`Events α = [(Time, α)]`
+This notation, directly from the Fran paper, means that Events are generic (in type α) and and represent a collection of pairs of time and value. In other words `Event extends Collection<(Time,A)>`.
 
-Behaviors, on the contrary, are continuous and time-varying values. For example analog position, velocity or acceleration, the temperature, or time itself, are behaviors. At any given (valid) time a value exists. They can be represented as a function from time to a value:
+Behaviors, on the contrary, are continuous and time-varying values. For example analog position, velocity or acceleration, the temperature, or time itself, are behaviors. At any given (valid) time a behavior has a value. You can measure velocity, but you can not _count_ a velocity as it may have infinite amount of values over time. Behaviors can be represented as a function from time to a value:
 
 `Behavior α = Time → α`
 
-There exists an isomorphism between Events and Behaviors, as shown by [Wan et al, 2001](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.63.4658&rep=rep1&type=pdf), converting from discrete to continuous time. At each point in time there is either some event or there is no event:
+Translating this notation to for example Java: `Function<Time,A>`. Given a time, get a value A.
+
+## Signals
+
+Behaviors are not so practical: in the digital world of computers we need to approximate behaviors and their continous values. We can only measure the values a finite amount of times, bounded by computer clock cycles. When [Wan et al.](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.63.4658&rep=rep1&type=pdf) created a FRP for realtime systems (RT-FRP) they needed a way to provide strict limits on the time and space required for computations. They observed the following _isomorphism_ between Events and Behaviors:
 
 `Event α ≈ Behavior ( Option α )`
 
-Here Option is an abstract data type, being either Some α or None. This isomorphism simplifies the semantics: we can now represent both behaviors and events in a common data type. Wan et al. call this a Signal:
+This means that at each point in time there is either some event or there is no event. In their system they used _signals_ which represent an optional value at each time. Continuous values, behaviors, when used in the computer are really discrete values or measurements and thus values at every timestep. Events only have values at some timesteps.
 
-`Signal α = Time → α`
+<script src="workspace/frp-graphs/continuous.discrete.js"></script>
 
-The isomorphism holds two ways, when viewed from a more practical viewpoint. Continuous values, behaviors, when modeled in the computer are really discrete values or samples, so Behaviors are represented as very fast firing Events. There is an actual maximum frequency at which the data is needed, for at least two reasons:
+<div class="caption">Sinus wave as discrete measurements</div>
+
+Often there is an actual maximum frequency at which the behavior measurements are needed, for at least two reasons:
 
 - the input is received only at the sample speed of the sensors and
 - the system can only display the results to the screen at a maximum of the refresh rate of the monitor or a given output rate to other outputs.
-
-<script src="workspace/frp-graphs/continuous.discrete.js"></script>
 
 Depending on how the behavior is used, this even allows for some optimization: by not firing an event when the sampled value did not change, we can prevent unnecessary recomputations. When further computations count or average the values this can not be done of course, so in most languages this is an explicit operation, often called `distinct`.
 
 <script src="workspace/frp-graphs/discrete.optimize.js"></script>
 
-Some restrictions on this isomorphism have to be regarded however, as one can express behaviors that are hard or impossible to convert to deterministic events. Sometimes these difficulties are solved by increasing the sampling rate, like with integrals. Languages like Fran allow for behaviors like `integrate` which apply mathematical integration to a function. These behaviors can be approximated with sampling rates going to zero. Examples of impossibly convertible behaviors are `sharp`, [Zeno's paradox](https://en.wikipedia.org/wiki/Zeno%27s_paradoxes), and `unpredictable`. These examples share the feature that frequency and sampling rate play an important role which is hard to express semantically, and thus are described as non-terminating or erroring by [Wan et al.]()
+<div class="caption">Only send events when the measurements change</div>
+
+Some restrictions on this isomorphism have to be regarded however, as one can express behaviors that are hard or impossible to convert to deterministic events. Sometimes these difficulties are solved by increasing the sampling rate, like with integrals. Languages like Fran allow for behaviors like `integrate` which apply mathematical integration to a function. These behaviors can be approximated with sampling rates going close to zero.
+
+Examples of impossibly convertible behaviors are `sharp` (behavior with some different value at exactly and only time `t`), [Zeno's paradox](https://en.wikipedia.org/wiki/Zeno%27s_paradoxes) (increasing frequency going to infinity), and `unpredictable` (non-determinism). These examples share the feature that frequency and sampling rate play an important role. This is hard to express semantically, [Wan and Hudak](https://pdfs.semanticscholar.org/b3b5/59104528d31f7db7fbe208377abdc4a00e15.pdf) describe them as non-terminating or erroring for their real time FRP.
 
 ## Examples
 

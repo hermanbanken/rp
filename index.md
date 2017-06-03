@@ -7,7 +7,7 @@ title: Introduction
 weight: 0
 ---
 
-First, what the heck is _Reactive_? At least these 3 things:
+First, what is _Reactive_? At least these 3 things:
 
 - a general adjective, doing something as a reaction to some other event
 - manager speak for all things software must be nowadays
@@ -40,6 +40,6 @@ At least in terms of computer science the term reactive programming has been aro
 
 Berry noted that then existing General Purpose Languages (GPL's) alone were not suitable for those systems, and that development could benefit from better abstractions and primitives available in Special Purpose Languages, like Esterel. He argues for synchronity as it allows focussing on the logic of reactions, instead of dealing with the problems that arise with asynchronity. Synchronity makes deterministic and concurrent programs possible and causes performance to be predictable, which is necessary for real time systems. He concludes that GPL's and SPL's respective advantages are complementary and can be combined in larger systems.
 
-Since then lots of research has been done in the academic world until at some point several implementations arose that became very popular outside the universities. Examples are Flapjax (JavaScript), Elm, Reactive Extensions (or Rx.NET) and more recently RxJava and frameworks like Meteor, React and Angular.
+Since then lots of research has been done in the academic world until at some point several implementations arose that became very popular outside academia. Examples are Flapjax (JavaScript), Elm, Reactive Extensions (or Rx.NET) and more recently RxJava. Then the web community took off with the term "reactive" and frameworks like Meteor, React, Vue and Angular where created.
 
 [Continue with Functional Reactive Programming](frp.html)
