@@ -6,7 +6,7 @@ weight: 1
 
 # Functional Reactive Programming
 
-In 1997 Conal Elliot created a Functional Reactive Animation system ([Fran]((http://www.eecs.northwestern.edu/~robby/courses/395-495-2009-winter/fran.pdf))) and defined Functional Reactive Programming. While Fran was used only for animation, the core building blocks (_Events_ and _Behavior_) outlived Fran and are very relevant for Reactive Programming in general.
+In 1997 Conal Elliot created a Functional Reactive Animation system ([Fran]((http://www.eecs.northwestern.edu/~robby/courses/395-495-2009-winter/fran.pdf))) and defined [Functional Reactive Programming](https://stackoverflow.com/a/5878525/552203). While Fran was used only for animation, the core building blocks (_Events_ and _Behavior_) outlived Fran and are very relevant for Reactive Programming in general.
 
 ## Building blocks
 
@@ -108,3 +108,5 @@ For Event the Applicative Functor needs to handle two Event's which not necessar
 For Event's the Monoid and Monad instances are defined by Elliot. The Monoid instance can provide an empty Event (never occurs) and merge multiple Events, in a time-ordered fashion. 
 
 The Monad instance is useful when an Event generates Events, for which Elliot uses an astroid collision tracking example, where each spawned astroid generates an Event of collisions. The instance takes care of flattening this event-valued event, taking care that inner events cannot fire before they are created by the outer event.
+
+[Continue with Reactive Extensions](rx.html)

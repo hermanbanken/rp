@@ -227,5 +227,7 @@ If you for some reason want all values in the Observable, then you need to wait 
 observable.toArray().subscribe(array => {})
 ```
 
-## Examples
-Now that you know the basics of Rx, lets dive into some examples.
+<!--## Examples
+Now that you know the basics of Rx, lets dive into some examples.-->
+
+[Continue with Reactive Streams](rs.html)

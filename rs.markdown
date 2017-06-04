@@ -77,6 +77,8 @@ Observable.just(1).toFlowable(BackpressureStrategy.DROP)
 Single.just(1).toFlowable() // no strategy required
 ```
 
+RxJava is part of the Reactive Extensions family and the operators are very much the same. Go back to [Reactive Streams](rx.html) for more examples.
+
 ### Project Reactor
 Reactor is very much like RxJava, and in fact they share a lot of operators. Operators added to one eventually ended up in the other as well. The `Flux` and `Mono` types are the types that represent data flows in Reactor. Flux is the 0..N flow variant, while Mono contains at most 1 item and thus is a combination of RxJava's Single, Maybe and Completable in one type. Reactor uses Java 8 (rather than RxJava targetting Java 6) which allows it to use lambda's natively instead of requiring the polyfills that RxJava needs to ship.
 
@@ -104,7 +106,7 @@ We know Akka to be an Actor System suited for distributed applications. The Akka
 
 ```[ Source ] => [ Flow ] => [ Sink ]```
 
-After bootstrapping the complete data flow you need to `run` it with an ActorSystem and a Materializer. This causes the flow to run on whatever distributed cluster is configured or just locally if no custom configuration is provided.
+After bootstrapping the complete data flow you need to `run` it with an `ActorSystem` and a `Materializer`. This causes the flow to run on whatever distributed cluster is configured or just locally if no custom configuration is provided.
 
 Using the following methods we can [interop between RS and Akka](http://doc.akka.io/docs/akka/current/scala/stream/stream-integrations.html#integrating-with-reactive-streams):
 
@@ -178,3 +180,7 @@ As discussed, the RS library makes it possible to wire flows from Rx, Akka and R
 
 <script src="http://gist-it.appspot.com/http://github.com/rkuhn/ReactiveStreamsInterop/blob/7124906fb50f9a91cee4e8d58c00853898eed239/src/main/scala/com/rolandkuhn/rsinterop/ScalaMain.scala"></script>
 
+## Conclusion
+Many different libraries for the JVM exist that all talk using the same API, Reactive Streams. This is convenient for Java and Scala developers writing reactive programs, as they can use all sorts of external systems (ao RabbitMQ, Mongo, Kafka, etc.) as "inputs from the environment". Though it does not mean that our applications are automatically "Reactive" if we use one of the Reactive Streams libraries.
+
+[Continue with Shared ideas](shared.html)
