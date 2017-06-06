@@ -20,7 +20,7 @@ main = lift asText Mouse.position
 
 This program continuously outputs the position of the mouse whenever it changes. Compiled and run it looks like this:
 
-![Elm sample program](assets/elm.mouse.png)
+![Elm sample program](/rp/assets/elm.mouse.png)
 <div class="caption">Figure: Basic Elm program, <a href="https://dash.harvard.edu/bitstream/handle/1/12872183/74651384.pdf">source</a></div>
 
 The signals in this application are `Mouse.position` which is a signal of tupled x and y positions, and `lift asTest Mouse.position` which is a new signal made of the first signal and the transformation `asText`. `asText` simply makes the tuples of coordinates into a string like `"(40,100)"`. The function `lift` applies `asText` to every single value inside the `Mouse.position` signal.
