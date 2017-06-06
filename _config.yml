@@ -34,4 +34,7 @@ exclude:
   - Gemfile.lock
   - static
   - workspace/node_modules
+  - workspace/elm_0_18
+  - workspace/automaton
+  - workspace/automaton_before_0_16
 github: [metadata]
