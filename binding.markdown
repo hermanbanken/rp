@@ -3,7 +3,7 @@ layout: default
 title:  "Data binding"
 date:   2017-05-27 22:10:09 +0200
 categories: frp
-weight: 5
+weight: 50
 ---
 
 Often the terms reactive and reactive programming are used for programming using frameworks like Angular, React, Vue and Meteor. While these frameworks share much of the concepts of Reactive Programming, they do not offer the primitives types (Observable, Signal, Stream, etc.) that you expect when using Reactive Programming. In this section we explain what these frameworks offer and why it could be considered (a limited form of) Reactive Programming. 
