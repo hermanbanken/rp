@@ -22,6 +22,13 @@ Behaviors, on the contrary, are continuous and time-varying values. For example 
 
 Translating this notation to for example Java: `Function<Time,A>`. Given a time, get a value A.
 
+To get a visual idea of aboves definitions, consider this graph representing a (mouse-move) Event and one representing a (sinus) Behavior.
+<script src="workspace/frp-graphs/discrete.js"></script>
+<div class="caption">Mouse clicks Event, discrete</div>
+
+<script src="workspace/frp-graphs/continuous.js"></script>
+<div class="caption">Sinus wave Behavior, continuos, no gaps</div>
+
 ## Signals
 
 Behaviors are not so practical: in the digital world of computers we need to approximate behaviors and their continous values. We can only measure the values a finite amount of times, bounded by computer clock cycles. When [Wan et al.](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.63.4658&rep=rep1&type=pdf) created a FRP for realtime systems (RT-FRP) they needed a way to provide strict limits on the time and space required for computations. They observed the following _isomorphism_ between Events and Behaviors:

@@ -39,7 +39,7 @@ function discreteOptimize(element) {
     .attr("x", 4)
     .attr("dy", "2.4em")
     .style("text-anchor", "end")
-    .text("x");
+    .text("time");
 
   yas = yas || svg.append("g")
   yas

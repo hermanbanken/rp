@@ -1,7 +1,7 @@
 (function(){
 
 var svg, path, xas, yas, ytext, xtext;
-function continuousDiscrete(element) {
+function continuous(element) {
   var margin = {top: 10, right: 20, bottom: 40, left: 35},
     width = $(element).parent().width() - margin.left - margin.right,
     height = 200 - margin.top - margin.bottom;
@@ -60,29 +60,6 @@ function continuousDiscrete(element) {
     .attr("fill", "none")
     .attr("class", "line")
     .attr("d", line);
-
-  var cs = svg
-    .selectAll('circle')
-    .data(sinusdata)
-  cs.enter().append("circle")
-  cs.exit().remove()
-  cs.attr("cx", function(d){ return x(d.x) })
-    .attr("cy", function(d){ return y(d.y) })
-    .attr("r", 3)
-    .style("stroke", "red")
-    .style("fill", "transparent")
-
-  var ls = svg.selectAll("line.linedown")
-    .data(sinusdata)
-  ls.enter().append("line")
-    .attr("class", "linedown")
-  ls.exit().remove()
-  ls.attr("x1", function(d){ return x(d.x) })
-    .attr("y1", function(d){ return y(d.y) })
-    .attr("x2", function(d){ return x(d.x) })
-    .attr("y2", function(d){ return y(0/*-Math.PI*.5*/) })
-    .style("stroke", "red")
-    .style("fill", "transparent")
     
   function sinusdata(){
     var points = width / 10;
@@ -98,7 +75,7 @@ let script = document.currentScript
 let div = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 script.parentNode.insertBefore(div, script)
 $(window)
-  .on("resize", continuousDiscrete.bind(null, div))
+  .on("resize", continuous.bind(null, div))
   .on("load", () => $(window).trigger("resize"));
 
 })();
