@@ -16,7 +16,7 @@ Some libraries restrict the types of events in the streams: the "next*(error&#12
 
 ## The evaluation model: to push or pull
 Each reactive programming language or framework has an _evaluation model_, responsible for propagating changes. This evaluation model of a reactive system is mostly hidden to the user, but it influences the performance and the capabilities that the system offers.
-Choosing the right language or framework thus requires at least some knowledge of the internal evaluation models. Generally two paradigms exist: _push_ and _pull_. In this section we explains both their advantages and disadvantages, and use cases.
+Choosing the right language or framework thus requires at least some knowledge of the internal evaluation models. Generally two paradigms exist: _push_ and _pull_. Lets explains both their advantages and disadvantages, and use cases.
 
 When propagating changes in a reactive system, either of the two parties can be in charge of initiating the propagation. Either the sources send (push) values to their dependants or the dependants request (pull) the values from their sources. Don't be confused: the data always originates at the source and flows to destination, but who is responsible is what changes.
 
@@ -26,10 +26,69 @@ _Push_ based reactive systems propagate changes to subscribers as soon as new da
 ### Pull
 _Pull_ based systems propagate changes whenever the subscriber requires new data. They are <em>demand-driven</em>. The first Functional Reactive Programming languages (<a href="http://conal.net/fran/">Fran</a>) were pull based. It matches well with the concept of a Behavior, a continuous function: continuous functions need to be sampled to visualize them on a screen or write them to disk. When a new sample is started each value requests the values of it's upstream dependencies. This ensures no wasteful computations are done in-between samples, but also introduces a delay between changes and their effect: on average half the sample rate and in the worst case the full sample rate.
 
-It can be argued that pull based systems are not 'reactive' in the sense of the original definition: the subscriber is in charge of requesting new data, so it is possible that the system does not operate at the speed of the environment. Depending on the use case this can be a good thing, but in most use cases for Reactive Programming pull-based systems theoretically offer better performance.
+It can be argued that pull based systems are not 'reactive' in the sense of the original definition: the subscriber is in charge of requesting new data, so it is possible that the system does not operate at the speed of the environment. Depending on the use case this can be a good thing, but in general this becomes harder to reason about if we combine the two.
 
-### Pull the trigger
-The evaluation model is really about which party triggers change to be propagated, but there is another distinction: how the change is propagated. In frameworks that utilize a subscriber pattern the change is pushed to the subscribers, providing them with a new value. This is in contrast to frameworks that operate on a dependency graph, which trigger re-computation of a part of this graph, by retrieving the input values and performing the computation, triggering changes further down the graph.
+### Pull for re-computation
+The evaluation model is really about which party triggers change to be propagated, but there is another distinction: how the change is propagated. In frameworks that utilize a subscriber pattern the change is pushed to the subscribers, providing them with a new value. This is in contrast to frameworks that internally manage a dependency graph (like the [data binding](binding.html) ones), which trigger re-computation of a part of this graph, by retrieving the input values and performing the computation, triggering changes further down the graph.
+
+## Hot or cold
+The issue of hot and cold streams is frequently a problem new developers face and don't understand. Stackoverflow is full of people having bugs caused by this and there are equally many articles explaining the difference. So lets [add another one](https://xkcd.com/927/).
+
+Whether a stream is hot or cold depends [on one thing](https://twitter.com/headinthebox/status/616007915112017920): do side effects happen upon subscription? Hot streams share side effects, while cold streams run (the/any) side effect per observer. Lets look at the examples below ([source](https://medium.com/@benlesh/hot-vs-cold-observables-f8094ed53339)):
+
+```javascript
+// COLD
+var cold = new Observable((observer) => {
+  var producer = new Producer();
+  // have observer listen to producer here
+});
+```
+
+```javascript
+// HOT
+var producer = new Producer();
+var hot = new Observable((observer) => {
+  // have observer listen to producer here
+});
+```
+
+Commonly people confuse cold streams to be streams that are synchronous (`Observable.from(1, 2, 3)`). While that is a common source of cold streams, the following Observable is also stone cold and certainly not synchronous:
+
+```javascript
+// COLD
+var cold = new Observable((observer) => {
+  // interval created inside
+  let t = setInterval(() => observer.next(true), 100)
+  return () => clearInterval(t)
+});
+```
+
+Another source of confusion is due to avoiding re-computation. Given a hot stream, if we create multiple new streams off this source by multiple transformations the computation of the operators is still going to be executed multiple times. People refer to these streams as _"warm"_ however they are still hot as long as the operators have pure functions.
+
+```javascript
+var hot = /* HOT input stream */
+
+// heavyComputation executed twice (for A & for B), 
+// should still be called HOT, heavyComputation is no side-effect
+var hotAndExpensive = hot.map(heavyComputation)
+
+var hotA = hotAndExpensive.map(fooComputation)
+var hotB = hotAndExpensive.map(barComputation)
+```
+
+### Making cold streams hot
+Often we want to execute side-effect once, so our cold stream should be subscribed once. There are several ways and operators to make our stream hot. The idea is to have a single observer for the cold stream, and this single observer then multicasts the values to all of its own registered listeners. Examples using RxJS:
+
+```javascript
+cold = /* cold interval Observable from above */
+
+var hot1 = cold.share()
+// hot1 automatically starts cold after the first subscriber
+
+var hot2 = cold.publish()
+// use hot2 multiple times
+hot2.connect()
+```
 
 ## Glitches
 Some reactive languages advocate to be glitch free, which sounds good, but what does it mean?
@@ -43,3 +102,28 @@ It is important to know whether the language you are using prevents glitches or 
 Arguably glitches do not matter: nothing ever happens simultaneous in a single cpu core,
 so even the intermediate state should be regarded as correct.
 When you do not expect these states however, nasty bugs could creep in.
+
+An artificial `glitch` using Rx:
+
+```javascript
+const A = new Subject()
+const B = A.map(x => x * 2)
+const C = Observable.combineLatest(A, B, (a, b) => a + b)
+C.subscribe(console.log)
+
+A.next(1) // 3
+A.next(3) // 5, 9
+A.next(5) // 11, 15
+```
+
+Here we see that `combineLatest` waits for both A and B to have send a value before it outputs, so only 1 output for `A.next(1)`. Then if we send `3`, we see 5 (`A == 3 && B == 2`) come out and then 9 (`A == 3 && B == 6`). This is because in Rx values are pushed to every Observer of a Subject recursively and sequentially.
+
+The 5 could be considered a glitch: a temporary incorrect state. However when we are aware of these shapes in the dependency graph we can quickly remedy the issue:
+
+```javascript
+// if they emit at the same time always
+const C = Observable.zip(A, B, (a, b) => a + b)
+
+// if they are `hot` and a minor delay is acceptable
+const C = Observable.combineLatest(A, B, (a, b) => a + b).debounce(0)
+```
