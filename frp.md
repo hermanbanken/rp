@@ -116,4 +116,4 @@ For Event's the Monoid and Monad instances are defined by Elliot. The Monoid ins
 
 The Monad instance is useful when an Event generates Events, for which Elliot uses an astroid collision tracking example, where each spawned astroid generates an Event of collisions. The instance takes care of flattening this event-valued event, taking care that inner events cannot fire before they are created by the outer event.
 
-[Continue with Reactive Extensions](rx.html)
+[Continue with Elm](elm.html)

@@ -285,3 +285,5 @@ So far we have seen that Cycle is mostly a paradigm how to structure application
 The Stream IO way of writing applications has advantages for separating logic and creating easily testable applications, as we can simply replace the drivers at one single location with mocked alternatives. It does require a mental shift from using imperative logic or from using monadic IO though.
 
 We have seen a mixed monadic / imperative alternative to Stream IO, by exploiting the access to the DOM in the imperative world of JavaScript. The code remains well readable and has more expressive power (e.g. `flatMap` to keep the state together). However, in the end your choice is still a matter of preference.
+
+[Continue with Shared ideas](shared.html)

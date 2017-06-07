@@ -338,3 +338,5 @@ A great guide explaining the differences between version 0.16 and 0.17 is availa
 
 ## Conclusion
 Elm started of as a Functional Reactive Programming language, with no support for higher order Signals. Over time a different pattern emerged and was called the Elm Architecture, which is a Model View Update (MVU) architecture. This pattern allowed Elm applications to be written without much use of signals. In Elm 0.17 Signals where replaced with Subscriptions, which are managed by the Elm runtime and directly send their data to the Update part of the architecture. Without powerful reactive primitives (Subscriptions `Sub` only have a `map` method) Elm now is more or less comparable to [Data Binding frameworks](binding.html) like the combination of Redux + React.
+
+[Continue with Reactive Extensions](rx.html)

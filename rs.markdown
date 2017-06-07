@@ -183,4 +183,4 @@ As discussed, the RS library makes it possible to wire flows from Rx, Akka and R
 ## Conclusion
 Many different libraries for the JVM exist that all talk using the same API, Reactive Streams. This is convenient for Java and Scala developers writing reactive programs, as they can use all sorts of external systems (ao RabbitMQ, Mongo, Kafka, etc.) as "inputs from the environment". Though it does not mean that our applications are automatically "Reactive" if we use one of the Reactive Streams libraries.
 
-[Continue with Shared ideas](shared.html)
+[Continue with Cycle.js](cycle.html)
